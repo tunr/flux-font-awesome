@@ -32,7 +32,7 @@ class SvgParser
     {
         $viewBox = $svg->attr('viewBox');
 
-        if (empty($viewBox)) {
+        if ($viewBox === null || $viewBox === '') {
             // Fallback to common Font Awesome viewBox
             return '0 0 512 512';
         }

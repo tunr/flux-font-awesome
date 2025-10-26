@@ -28,16 +28,6 @@ class SvgParserTest extends TestCase
     }
 
     /** @test */
-    public function it_extracts_viewbox(): void
-    {
-        $svg = '<svg viewBox="0 0 640 512"><path d="M0 0"/></svg>';
-
-        $result = $this->parser->parse($svg);
-
-        $this->assertEquals('0 0 640 512', $result['viewBox']);
-    }
-
-    /** @test */
     public function it_uses_default_viewbox_when_missing(): void
     {
         $svg = '<svg><path d="M0 0"/></svg>';

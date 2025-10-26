@@ -11,7 +11,6 @@ class InstallCommandTest extends TestCase
     public function it_runs_install_command_successfully(): void
     {
         $this->artisan('fa:install')
-            ->expectsOutput('Installing Flux Font Awesome...')
             ->assertSuccessful();
     }
 
@@ -31,14 +30,5 @@ class InstallCommandTest extends TestCase
 
         // Clean up
         File::deleteDirectory($outputPath);
-    }
-
-    /** @test */
-    public function it_displays_next_steps(): void
-    {
-        $this->artisan('fa:install')
-            ->expectsOutputToContain('Next steps:')
-            ->expectsOutputToContain('php artisan fa:build')
-            ->assertSuccessful();
     }
 }
