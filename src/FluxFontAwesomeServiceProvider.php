@@ -1,0 +1,58 @@
+<?php
+
+namespace Tunr\FluxFontAwesome;
+
+use Illuminate\Support\ServiceProvider;
+use Tunr\FluxFontAwesome\Commands\BuildCommand;
+use Tunr\FluxFontAwesome\Commands\ConfigCommand;
+use Tunr\FluxFontAwesome\Commands\InstallCommand;
+use Tunr\FluxFontAwesome\Commands\StatusCommand;
+use Tunr\FluxFontAwesome\Services\IconWriter;
+use Tunr\FluxFontAwesome\Services\SvgParser;
+
+class FluxFontAwesomeServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        $this->mergeConfigFrom(
+            __DIR__.'/../config/flux-font-awesome.php',
+            'flux-font-awesome'
+        );
+
+        // Register services
+        $this->app->singleton(SvgParser::class);
+        $this->app->singleton(IconWriter::class);
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        // Publish configuration
+        $this->publishes([
+            __DIR__.'/../config/flux-font-awesome.php' => config_path('flux-font-awesome.php'),
+        ], 'flux-font-awesome-config');
+
+        // Publish views (icon components)
+        $this->publishes([
+            __DIR__.'/../resources/views' => resource_path('views'),
+        ], 'flux-font-awesome-views');
+
+        // Load views from package
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'flux-font-awesome');
+
+        // Register commands
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                InstallCommand::class,
+                BuildCommand::class,
+                ConfigCommand::class,
+                StatusCommand::class,
+            ]);
+        }
+    }
+}

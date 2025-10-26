@@ -1,0 +1,144 @@
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Font Awesome Source Path
+    |--------------------------------------------------------------------------
+    |
+    | The path to your Font Awesome installation. This should point to the
+    | directory containing the 'svgs' folder (e.g., node_modules/@fortawesome/fontawesome-free
+    | or a custom Pro installation path).
+    |
+    */
+
+    'source_path' => env('FA_SOURCE_PATH', base_path('node_modules/@fortawesome/fontawesome-free')),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Icon Output Path
+    |--------------------------------------------------------------------------
+    |
+    | Where generated icon Blade components will be stored. By default, this
+    | follows Flux's pattern of storing custom icons in resources/views/flux/icon.
+    |
+    */
+
+    'output_path' => resource_path('views/flux/icon/fa'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Variant
+    |--------------------------------------------------------------------------
+    |
+    | The default Font Awesome variant to use when none is specified.
+    | Available: 'solid', 'regular', 'light', 'thin', 'duotone', 'brands'
+    |
+    */
+
+    'default_variant' => 'solid',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Fallback Strategy
+    |--------------------------------------------------------------------------
+    |
+    | How to handle missing icon variants:
+    | - 'fallback': Fall back to default variant if requested variant doesn't exist
+    | - 'error': Show an error message (respects app.debug)
+    |
+    */
+
+    'fallback_strategy' => 'fallback',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Size Mappings
+    |--------------------------------------------------------------------------
+    |
+    | Tailwind CSS size classes for different icon sizes. These map to the
+    | 'size' prop on the icon component (e.g., <flux:icon.fa.user size="lg" />).
+    |
+    */
+
+    'sizes' => [
+        'xs' => 'size-3',      // 12px
+        'sm' => 'size-4',      // 16px
+        'base' => 'size-5',    // 20px
+        'md' => 'size-6',      // 24px
+        'lg' => 'size-8',      // 32px
+        'xl' => 'size-10',     // 40px
+        '2xl' => 'size-12',    // 48px
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Default Size
+    |--------------------------------------------------------------------------
+    |
+    | The default size to use when none is specified.
+    |
+    */
+
+    'default_size' => 'md',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Animation CSS
+    |--------------------------------------------------------------------------
+    |
+    | CSS for icon animations (spin, pulse). This is injected once per request
+    | when an animated icon is rendered.
+    |
+    */
+
+    'animations' => [
+        'spin' => [
+            'class' => 'fa-spin',
+            'css' => '@keyframes fa-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } .fa-spin { animation: fa-spin 2s linear infinite; }',
+        ],
+        'pulse' => [
+            'class' => 'fa-pulse',
+            'css' => '@keyframes fa-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } } .fa-pulse { animation: fa-pulse 2s ease-in-out infinite; }',
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Duotone Settings
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for duotone icon rendering.
+    |
+    */
+
+    'duotone' => [
+        'primary_opacity' => 1.0,
+        'secondary_opacity' => 0.4,
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Build Settings
+    |--------------------------------------------------------------------------
+    |
+    | Configuration for the fa:build command.
+    |
+    */
+
+    'build' => [
+        // Specific icons to include (empty = all icons)
+        'include' => [],
+
+        // Icons to exclude
+        'exclude' => [],
+
+        // Variants to build (empty = all available variants)
+        'variants' => [],
+
+        // Whether to preserve existing icon files when building
+        'preserve_existing' => false,
+    ],
+
+];

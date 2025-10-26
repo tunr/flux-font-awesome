@@ -1,0 +1,62 @@
+{
+    "name": "tunr/flux-font-awesome",
+    "description": "Font Awesome icon integration for Laravel Flux UI component library",
+    "keywords": [
+        "laravel",
+        "livewire",
+        "flux",
+        "font-awesome",
+        "icons",
+        "components"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "tunr",
+            "email": "capellion@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0",
+        "illuminate/console": "^11.0",
+        "illuminate/filesystem": "^11.0",
+        "symfony/dom-crawler": "^7.0",
+        "symfony/css-selector": "^7.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^9.0",
+        "phpunit/phpunit": "^11.0",
+        "laravel/pint": "^1.13"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tunr\\FluxFontAwesome\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tunr\\FluxFontAwesome\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Tunr\\FluxFontAwesome\\FluxFontAwesomeServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test:coverage": "vendor/bin/phpunit --coverage-html coverage",
+        "pint": "vendor/bin/pint",
+        "pint:test": "vendor/bin/pint --test"
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

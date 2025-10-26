@@ -1,0 +1,190 @@
+<?php
+
+namespace Tunr\FluxFontAwesome\Services;
+
+use Illuminate\Filesystem\Filesystem;
+use Tunr\FluxFontAwesome\Support\Variant;
+
+class IconWriter
+{
+    public function __construct(
+        protected Filesystem $files,
+        protected SvgParser $parser,
+    ) {}
+
+    /**
+     * Write a single icon with all its variants to a Blade component.
+     */
+    public function write(string $iconName, array $variantSvgPaths, string $outputPath): bool
+    {
+        $iconContent = $this->generateIconContent($iconName, $variantSvgPaths);
+        $filePath = $this->getIconFilePath($iconName, $outputPath);
+
+        $this->ensureDirectoryExists(dirname($filePath));
+
+        return (bool) $this->files->put($filePath, $iconContent);
+    }
+
+    /**
+     * Generate the Blade component content for an icon with multiple variants.
+     */
+    protected function generateIconContent(string $iconName, array $variantSvgPaths): string
+    {
+        $variants = [];
+
+        foreach ($variantSvgPaths as $variant => $svgPath) {
+            if (! $this->files->exists($svgPath)) {
+                continue;
+            }
+
+            $svgContent = $this->files->get($svgPath);
+            $parsed = $this->parser->parse($svgContent);
+            $pathMarkup = $this->parser->generatePathMarkup($parsed);
+
+            $variants[$variant] = [
+                'viewBox' => $parsed['viewBox'],
+                'paths' => $pathMarkup,
+            ];
+        }
+
+        if (empty($variants)) {
+            throw new \RuntimeException("No valid variants found for icon: {$iconName}");
+        }
+
+        return $this->generateBladeTemplate($iconName, $variants);
+    }
+
+    /**
+     * Generate the complete Blade template for a multi-variant icon.
+     */
+    protected function generateBladeTemplate(string $iconName, array $variants): string
+    {
+        $defaultVariant = config('flux-font-awesome.default_variant', 'solid');
+        $variantCases = $this->generateVariantCases($variants);
+        $defaultViewBox = $variants[$defaultVariant]['viewBox'] ?? reset($variants)['viewBox'];
+
+        return <<<BLADE
+@props([
+    'variant' => '{$defaultVariant}',
+])
+
+@php
+// Determine which variant to render
+\$resolvedVariant = \$variant;
+
+// ViewBox based on variant
+\$viewBox = match(\$resolvedVariant) {
+{$this->generateViewBoxCases($variants)}    default => '{$defaultViewBox}',
+};
+@endphp
+
+<svg {{ \$attributes->merge(['class' => 'shrink-0']) }} viewBox="{{ \$viewBox }}" data-flux-icon aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    @switch(\$resolvedVariant)
+{$variantCases}
+        @default
+            {{-- Fallback to first available variant --}}
+{$this->generateDefaultCase($variants)}
+    @endswitch
+</svg>
+BLADE;
+    }
+
+    /**
+     * Generate @case blocks for each variant.
+     */
+    protected function generateVariantCases(array $variants): string
+    {
+        $cases = [];
+
+        foreach ($variants as $variant => $data) {
+            $cases[] = <<<CASE
+        @case('{$variant}')
+            {$data['paths']}
+            @break
+CASE;
+        }
+
+        return implode("\n\n", $cases);
+    }
+
+    /**
+     * Generate viewBox match cases.
+     */
+    protected function generateViewBoxCases(array $variants): string
+    {
+        $cases = [];
+
+        foreach ($variants as $variant => $data) {
+            $cases[] = "    '{$variant}' => '{$data['viewBox']}',";
+        }
+
+        return implode("\n", $cases) . "\n";
+    }
+
+    /**
+     * Generate the default case (first available variant).
+     */
+    protected function generateDefaultCase(array $variants): string
+    {
+        $firstVariant = reset($variants);
+        return "            {$firstVariant['paths']}";
+    }
+
+    /**
+     * Get the file path for an icon component.
+     */
+    protected function getIconFilePath(string $iconName, string $outputPath): string
+    {
+        return sprintf('%s/%s.blade.php', rtrim($outputPath, '/'), $iconName);
+    }
+
+    /**
+     * Ensure a directory exists.
+     */
+    protected function ensureDirectoryExists(string $path): void
+    {
+        if (! $this->files->isDirectory($path)) {
+            $this->files->makeDirectory($path, 0755, true);
+        }
+    }
+
+    /**
+     * Delete an icon file.
+     */
+    public function delete(string $iconName, string $outputPath): bool
+    {
+        $filePath = $this->getIconFilePath($iconName, $outputPath);
+
+        if ($this->files->exists($filePath)) {
+            return $this->files->delete($filePath);
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if an icon file exists.
+     */
+    public function exists(string $iconName, string $outputPath): bool
+    {
+        return $this->files->exists($this->getIconFilePath($iconName, $outputPath));
+    }
+
+    /**
+     * Get all icon files in the output directory.
+     */
+    public function getIconFiles(string $outputPath): array
+    {
+        if (! $this->files->isDirectory($outputPath)) {
+            return [];
+        }
+
+        $files = $this->files->files($outputPath);
+
+        return collect($files)
+            ->filter(fn ($file) => $file->getExtension() === 'php')
+            ->map(fn ($file) => $file->getFilenameWithoutExtension())
+            ->values()
+            ->all();
+    }
+}
