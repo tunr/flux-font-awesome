@@ -18,12 +18,50 @@ composer require tunr/flux-font-awesome
 
 ### Step 2: Install Font Awesome
 
+**Font Awesome Free:**
 ```bash
-# Font Awesome Free
 npm install @fortawesome/fontawesome-free
+```
 
-# OR Font Awesome Pro
+**Font Awesome Pro (NPM):**
+```bash
+# 1. Configure NPM registry
+npm config set "@fortawesome:registry" https://npm.fontawesome.com/
+npm config set "//npm.fontawesome.com/:_authToken" YOUR_TOKEN_HERE
+
+# 2. Install Pro
 npm install @fortawesome/fontawesome-pro
+```
+
+**Font Awesome Pro (Composer):**
+
+Add to `composer.json`:
+```json
+{
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://composer.fontawesome.com"
+        }
+    ]
+}
+```
+
+Add `auth.json` with your token:
+```json
+{
+    "http-basic": {
+        "composer.fontawesome.com": {
+            "username": "YOUR_TOKEN_HERE",
+            "password": "retrieve"
+        }
+    }
+}
+```
+
+Then install:
+```bash
+composer require fortawesome/font-awesome
 ```
 
 The package **automatically detects** your installation - no configuration needed!

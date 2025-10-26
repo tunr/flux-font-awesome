@@ -45,17 +45,80 @@ The package **automatically detects** Font Awesome installations in common locat
 - `node_modules/@fortawesome/fontawesome-pro`
 - `vendor/fortawesome/font-awesome`
 
-### Standard Installation (Auto-detected)
+### Font Awesome Free (NPM)
 
 ```bash
-# Font Awesome Free
 npm install @fortawesome/fontawesome-free
+```
 
-# OR Font Awesome Pro
+That's it! The package will automatically detect and use it.
+
+### Font Awesome Pro (NPM)
+
+#### 1. Configure NPM Registry
+
+First, set up your Font Awesome Pro token:
+
+```bash
+npm config set "@fortawesome:registry" https://npm.fontawesome.com/
+npm config set "//npm.fontawesome.com/:_authToken" YOUR_TOKEN_HERE
+```
+
+Get your token from: https://fontawesome.com/account
+
+#### 2. Install Font Awesome Pro
+
+```bash
 npm install @fortawesome/fontawesome-pro
 ```
 
-That's it! The package will automatically find Font Awesome.
+The package automatically detects Pro and gives you access to all Pro variants:
+- `solid`, `regular`, `light`, `thin`, `duotone`
+- `sharp-solid`, `sharp-regular`, `sharp-light`, `sharp-thin`
+
+### Font Awesome Pro (Composer)
+
+For PHP-only projects without NPM:
+
+#### 1. Configure Composer Repository
+
+Add to your `composer.json`:
+
+```json
+{
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://composer.fontawesome.com"
+        }
+    ]
+}
+```
+
+#### 2. Add Authentication
+
+Create or update `auth.json` in your project root:
+
+```json
+{
+    "http-basic": {
+        "composer.fontawesome.com": {
+            "username": "YOUR_TOKEN_HERE",
+            "password": "retrieve"
+        }
+    }
+}
+```
+
+**Important:** Add `auth.json` to `.gitignore` to keep your token private!
+
+#### 3. Install Font Awesome Pro
+
+```bash
+composer require fortawesome/font-awesome
+```
+
+The package will auto-detect it in `vendor/fortawesome/font-awesome`.
 
 ### Custom Path (Optional)
 
