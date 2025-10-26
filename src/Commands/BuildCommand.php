@@ -4,6 +4,7 @@ namespace Tunr\FluxFontAwesome\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
 use Tunr\FluxFontAwesome\Services\IconWriter;
 use Tunr\FluxFontAwesome\Support\Variant;
 
@@ -23,6 +24,7 @@ class BuildCommand extends Command
 
     public function __construct(
         protected IconWriter $writer,
+        protected FontAwesomePathResolver $pathResolver,
     ) {
         parent::__construct();
     }
@@ -63,21 +65,16 @@ class BuildCommand extends Command
 
     protected function validatePaths(): bool
     {
-        $sourcePath = config('flux-font-awesome.source_path');
+        $configPath = config('flux-font-awesome.source_path');
 
-        if (! File::isDirectory($sourcePath)) {
-            $this->components->error("Font Awesome source path not found: {$sourcePath}");
-            $this->line('');
-            $this->line('Set FA_SOURCE_PATH in your .env file or update config/flux-font-awesome.php');
-
-            return false;
-        }
-
-        $svgsPath = $sourcePath.'/svgs';
-        if (! File::isDirectory($svgsPath)) {
-            $this->components->error("SVGs directory not found: {$svgsPath}");
-            $this->line('');
-            $this->line('Make sure Font Awesome is properly installed with SVG files.');
+        if (! $this->pathResolver->isInstalled($configPath)) {
+            $this->components->error('Font Awesome installation not found');
+            $this->newLine();
+            $this->line('Install Font Awesome via npm:');
+            $this->line('  <fg=cyan>npm install @fortawesome/fontawesome-free</>');
+            $this->newLine();
+            $this->line('Or set a custom path in .env:');
+            $this->line('  <fg=cyan>FA_SOURCE_PATH=/path/to/fontawesome</>');
 
             return false;
         }
@@ -103,7 +100,6 @@ class BuildCommand extends Command
     protected function getIconsToBuild(): array
     {
         $requestedIcons = $this->argument('icons');
-        $sourcePath = config('flux-font-awesome.source_path');
 
         // If specific icons requested, validate they exist
         if (! empty($requestedIcons)) {
@@ -117,6 +113,8 @@ class BuildCommand extends Command
         }
 
         // Otherwise, scan for all available icons
+        $sourcePath = $this->pathResolver->resolve(config('flux-font-awesome.source_path'));
+
         return $this->scanAvailableIcons($sourcePath);
     }
 
@@ -165,7 +163,7 @@ class BuildCommand extends Command
 
     protected function buildIcons(array $icons, array $variants): void
     {
-        $sourcePath = config('flux-font-awesome.source_path');
+        $sourcePath = $this->pathResolver->resolve(config('flux-font-awesome.source_path'));
         $outputPath = config('flux-font-awesome.output_path');
         $exclude = config('flux-font-awesome.build.exclude', []);
 

@@ -4,6 +4,7 @@ namespace Tunr\FluxFontAwesome\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
 
 class InstallCommand extends Command
 {
@@ -11,6 +12,12 @@ class InstallCommand extends Command
                             {--force : Overwrite existing configuration}';
 
     protected $description = 'Install Flux Font Awesome package';
+
+    public function __construct(
+        protected FontAwesomePathResolver $pathResolver,
+    ) {
+        parent::__construct();
+    }
 
     public function handle(): int
     {
@@ -68,17 +75,21 @@ class InstallCommand extends Command
 
     protected function checkFontAwesome(): void
     {
-        $sourcePath = config('flux-font-awesome.source_path', base_path('node_modules/@fortawesome/fontawesome-free'));
+        $configPath = config('flux-font-awesome.source_path');
 
-        if (File::isDirectory($sourcePath)) {
-            $this->components->task('Font Awesome found at: '.$sourcePath);
+        if ($this->pathResolver->isInstalled($configPath)) {
+            $resolvedPath = $this->pathResolver->resolve($configPath);
+            $this->components->task('Font Awesome found at: '.$resolvedPath);
         } else {
-            $this->components->warn('Font Awesome not found at: '.$sourcePath);
+            $this->components->warn('Font Awesome not found');
             $this->line('');
             $this->line('Install Font Awesome Free:');
-            $this->line('  npm install @fortawesome/fontawesome-free');
+            $this->line('  <fg=cyan>npm install @fortawesome/fontawesome-free</>');
             $this->line('');
-            $this->line('Or update FA_SOURCE_PATH in your .env file to point to your Font Awesome installation.');
+            $this->line('Or for Pro:');
+            $this->line('  <fg=cyan>npm install @fortawesome/fontawesome-pro</>');
+            $this->line('');
+            $this->line('For custom paths, set FA_SOURCE_PATH in .env');
         }
     }
 
@@ -86,14 +97,13 @@ class InstallCommand extends Command
     {
         $this->line('<fg=gray>Next steps:</>');
         $this->line('');
-        $this->line('  1. Configure source path in .env:');
-        $this->line('     <fg=yellow>FA_SOURCE_PATH=</><fg=cyan>node_modules/@fortawesome/fontawesome-free</>');
-        $this->line('');
-        $this->line('  2. Build icons:');
+        $this->line('  1. Build icons:');
         $this->line('     <fg=yellow>php artisan fa:build</>');
         $this->line('');
-        $this->line('  3. Use in Blade templates:');
+        $this->line('  2. Use in Blade templates:');
         $this->line('     <fg=cyan><flux:icon.fa.user variant="solid" /></>');
+        $this->line('');
+        $this->line('Tip: Font Awesome is auto-detected in node_modules or vendor');
         $this->line('');
     }
 }

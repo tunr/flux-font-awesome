@@ -7,6 +7,7 @@ use Tunr\FluxFontAwesome\Commands\BuildCommand;
 use Tunr\FluxFontAwesome\Commands\ConfigCommand;
 use Tunr\FluxFontAwesome\Commands\InstallCommand;
 use Tunr\FluxFontAwesome\Commands\StatusCommand;
+use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
 use Tunr\FluxFontAwesome\Services\IconWriter;
 use Tunr\FluxFontAwesome\Services\SvgParser;
 
@@ -23,6 +24,7 @@ class FluxFontAwesomeServiceProvider extends ServiceProvider
         );
 
         // Register services
+        $this->app->singleton(FontAwesomePathResolver::class);
         $this->app->singleton(SvgParser::class);
         $this->app->singleton(IconWriter::class);
     }

@@ -40,32 +40,29 @@ This will:
 
 ## Font Awesome Setup
 
-### Option 1: NPM (Font Awesome Free)
+The package **automatically detects** Font Awesome installations in common locations:
+- `node_modules/@fortawesome/fontawesome-free`
+- `node_modules/@fortawesome/fontawesome-pro`
+- `vendor/fortawesome/font-awesome`
+
+### Standard Installation (Auto-detected)
 
 ```bash
+# Font Awesome Free
 npm install @fortawesome/fontawesome-free
-```
 
-### Option 2: Font Awesome Pro
-
-If you have a Font Awesome Pro license, install it via NPM:
-
-```bash
+# OR Font Awesome Pro
 npm install @fortawesome/fontawesome-pro
 ```
 
-Then update your `.env` file:
+That's it! The package will automatically find Font Awesome.
+
+### Custom Path (Optional)
+
+Only needed for non-standard installations. Set in your `.env`:
 
 ```env
-FA_SOURCE_PATH=node_modules/@fortawesome/fontawesome-pro
-```
-
-### Option 3: Custom Path
-
-You can point to any Font Awesome installation by setting the path in your `.env`:
-
-```env
-FA_SOURCE_PATH=/path/to/your/fontawesome
+FA_SOURCE_PATH=/custom/path/to/fontawesome
 ```
 
 ## Building Icons

@@ -4,16 +4,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Font Awesome Source Path
+    | Font Awesome Source Path (Optional)
     |--------------------------------------------------------------------------
     |
-    | The path to your Font Awesome installation. This should point to the
-    | directory containing the 'svgs' folder (e.g., node_modules/@fortawesome/fontawesome-free
-    | or a custom Pro installation path).
+    | The package automatically detects Font Awesome installations in common
+    | locations (node_modules, vendor). Only set this if you have a custom
+    | installation path. Leave as null for automatic detection.
+    |
+    | Common paths checked automatically:
+    | - node_modules/@fortawesome/fontawesome-free
+    | - node_modules/@fortawesome/fontawesome-pro
+    | - vendor/fortawesome/font-awesome
     |
     */
 
-    'source_path' => env('FA_SOURCE_PATH', base_path('node_modules/@fortawesome/fontawesome-free')),
+    'source_path' => env('FA_SOURCE_PATH'),
 
     /*
     |--------------------------------------------------------------------------

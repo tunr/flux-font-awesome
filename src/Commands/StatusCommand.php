@@ -4,6 +4,7 @@ namespace Tunr\FluxFontAwesome\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
 use Tunr\FluxFontAwesome\Services\IconWriter;
 use Tunr\FluxFontAwesome\Support\Variant;
 
@@ -15,6 +16,7 @@ class StatusCommand extends Command
 
     public function __construct(
         protected IconWriter $writer,
+        protected FontAwesomePathResolver $pathResolver,
     ) {
         parent::__construct();
     }
@@ -38,12 +40,13 @@ class StatusCommand extends Command
 
     protected function checkFontAwesomeInstallation(): void
     {
-        $sourcePath = config('flux-font-awesome.source_path');
+        $configPath = config('flux-font-awesome.source_path');
 
         $this->line('<fg=yellow>Font Awesome Installation:</>');
         $this->newLine();
 
-        if (File::isDirectory($sourcePath)) {
+        if ($this->pathResolver->isInstalled($configPath)) {
+            $sourcePath = $this->pathResolver->resolve($configPath);
             $this->components->task("Source path found: {$sourcePath}");
 
             // Check for package.json to determine version
@@ -61,7 +64,9 @@ class StatusCommand extends Command
                 $this->line("  <fg=gray>Available icons:</> <fg=cyan>{$iconCount}</>");
             }
         } else {
-            $this->components->error("Source path not found: {$sourcePath}");
+            $this->components->error('Font Awesome not found');
+            $this->line('');
+            $this->line('  Run: <fg=cyan>npm install @fortawesome/fontawesome-free</>');
         }
 
         $this->newLine();
@@ -106,18 +111,16 @@ class StatusCommand extends Command
 
     protected function checkAvailableVariants(): void
     {
-        $sourcePath = config('flux-font-awesome.source_path');
-        $svgsPath = $sourcePath.'/svgs';
+        $configPath = config('flux-font-awesome.source_path');
+
+        if (! $this->pathResolver->isInstalled($configPath)) {
+            return;
+        }
+
+        $svgsPath = $this->pathResolver->getSvgsPath($configPath);
 
         $this->line('<fg=yellow>Available Variants:</>');
         $this->newLine();
-
-        if (! File::isDirectory($svgsPath)) {
-            $this->components->warn('SVGs directory not found');
-            $this->newLine();
-
-            return;
-        }
 
         $availableVariants = [];
 

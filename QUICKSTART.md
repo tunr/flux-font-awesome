@@ -18,22 +18,15 @@ composer require tunr/flux-font-awesome
 
 ### Step 2: Install Font Awesome
 
-Choose one:
-
-**Option A: Font Awesome Free (via NPM)**
 ```bash
+# Font Awesome Free
 npm install @fortawesome/fontawesome-free
-```
 
-**Option B: Font Awesome Pro (via NPM)**
-```bash
+# OR Font Awesome Pro
 npm install @fortawesome/fontawesome-pro
 ```
 
-Then add to your `.env`:
-```env
-FA_SOURCE_PATH=node_modules/@fortawesome/fontawesome-pro
-```
+The package **automatically detects** your installation - no configuration needed!
 
 ### Step 3: Run Installation Command
 
@@ -167,14 +160,14 @@ php artisan fa:build --refresh
 
 **Font Awesome not found?**
 
-Add to `.env`:
+The package checks these locations automatically:
+- `node_modules/@fortawesome/fontawesome-free`
+- `node_modules/@fortawesome/fontawesome-pro`
+- `vendor/fortawesome/font-awesome`
+
+For custom paths, add to `.env`:
 ```env
 FA_SOURCE_PATH=/path/to/your/fontawesome
-```
-
-Or edit `config/flux-font-awesome.php`:
-```php
-'source_path' => base_path('path/to/fontawesome'),
 ```
 
 ## Need Help?
