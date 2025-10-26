@@ -12,7 +12,7 @@ class SvgParserTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->parser = new SvgParser();
+        $this->parser = new SvgParser;
     }
 
     /** @test */

@@ -8,18 +8,26 @@ class Variant
      * Font Awesome Free variants.
      */
     public const FREE_SOLID = 'solid';
+
     public const FREE_REGULAR = 'regular';
+
     public const FREE_BRANDS = 'brands';
 
     /**
      * Font Awesome Pro variants (additional).
      */
     public const PRO_LIGHT = 'light';
+
     public const PRO_THIN = 'thin';
+
     public const PRO_DUOTONE = 'duotone';
+
     public const PRO_SHARP_SOLID = 'sharp-solid';
+
     public const PRO_SHARP_REGULAR = 'sharp-regular';
+
     public const PRO_SHARP_LIGHT = 'sharp-light';
+
     public const PRO_SHARP_THIN = 'sharp-thin';
 
     /**

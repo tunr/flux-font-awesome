@@ -22,7 +22,7 @@ abstract class TestCase extends Orchestra
     protected function getEnvironmentSetUp($app): void
     {
         // Set up test configuration
-        config()->set('flux-font-awesome.source_path', __DIR__ . '/fixtures/fontawesome');
-        config()->set('flux-font-awesome.output_path', __DIR__ . '/fixtures/output');
+        config()->set('flux-font-awesome.source_path', __DIR__.'/fixtures/fontawesome');
+        config()->set('flux-font-awesome.output_path', __DIR__.'/fixtures/output');
     }
 }

@@ -42,6 +42,7 @@ class InstallCommand extends Command
 
         if (File::exists($configPath) && ! $force) {
             $this->components->warn('Configuration already exists. Use --force to overwrite.');
+
             return;
         }
 
@@ -70,9 +71,9 @@ class InstallCommand extends Command
         $sourcePath = config('flux-font-awesome.source_path', base_path('node_modules/@fortawesome/fontawesome-free'));
 
         if (File::isDirectory($sourcePath)) {
-            $this->components->task('Font Awesome found at: ' . $sourcePath);
+            $this->components->task('Font Awesome found at: '.$sourcePath);
         } else {
-            $this->components->warn('Font Awesome not found at: ' . $sourcePath);
+            $this->components->warn('Font Awesome not found at: '.$sourcePath);
             $this->line('');
             $this->line('Install Font Awesome Free:');
             $this->line('  npm install @fortawesome/fontawesome-free');

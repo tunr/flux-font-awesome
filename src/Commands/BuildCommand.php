@@ -18,6 +18,7 @@ class BuildCommand extends Command
     protected $description = 'Build Font Awesome icon components';
 
     protected int $iconCount = 0;
+
     protected int $variantCount = 0;
 
     public function __construct(
@@ -47,6 +48,7 @@ class BuildCommand extends Command
 
         if (empty($iconsToBuild)) {
             $this->components->error('No icons found to build');
+
             return self::FAILURE;
         }
 
@@ -67,14 +69,16 @@ class BuildCommand extends Command
             $this->components->error("Font Awesome source path not found: {$sourcePath}");
             $this->line('');
             $this->line('Set FA_SOURCE_PATH in your .env file or update config/flux-font-awesome.php');
+
             return false;
         }
 
-        $svgsPath = $sourcePath . '/svgs';
+        $svgsPath = $sourcePath.'/svgs';
         if (! File::isDirectory($svgsPath)) {
             $this->components->error("SVGs directory not found: {$svgsPath}");
             $this->line('');
             $this->line('Make sure Font Awesome is properly installed with SVG files.');
+
             return false;
         }
 
@@ -119,11 +123,11 @@ class BuildCommand extends Command
     protected function scanAvailableIcons(string $sourcePath): array
     {
         $icons = [];
-        $svgsPath = $sourcePath . '/svgs';
+        $svgsPath = $sourcePath.'/svgs';
 
         // Scan each variant directory
         foreach (Variant::ALL as $variant) {
-            $variantDir = $svgsPath . '/' . Variant::toDirectory($variant);
+            $variantDir = $svgsPath.'/'.Variant::toDirectory($variant);
 
             if (! File::isDirectory($variantDir)) {
                 continue;
@@ -203,7 +207,7 @@ class BuildCommand extends Command
 
     protected function findIconVariants(string $sourcePath, string $iconName, array $variants): array
     {
-        $svgsPath = $sourcePath . '/svgs';
+        $svgsPath = $sourcePath.'/svgs';
         $found = [];
 
         foreach ($variants as $variant) {

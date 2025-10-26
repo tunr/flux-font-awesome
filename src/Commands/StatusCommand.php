@@ -47,7 +47,7 @@ class StatusCommand extends Command
             $this->components->task("Source path found: {$sourcePath}");
 
             // Check for package.json to determine version
-            $packageJsonPath = $sourcePath . '/package.json';
+            $packageJsonPath = $sourcePath.'/package.json';
             if (File::exists($packageJsonPath)) {
                 $packageJson = json_decode(File::get($packageJsonPath), true);
                 $version = $packageJson['version'] ?? 'unknown';
@@ -55,7 +55,7 @@ class StatusCommand extends Command
             }
 
             // Count available SVGs
-            $svgsPath = $sourcePath . '/svgs';
+            $svgsPath = $sourcePath.'/svgs';
             if (File::isDirectory($svgsPath)) {
                 $iconCount = $this->countAvailableIcons($svgsPath);
                 $this->line("  <fg=gray>Available icons:</> <fg=cyan>{$iconCount}</>");
@@ -78,6 +78,7 @@ class StatusCommand extends Command
             $this->components->warn('No icons built yet');
             $this->line('  Run: <fg=cyan>php artisan fa:build</>');
             $this->newLine();
+
             return;
         }
 
@@ -106,7 +107,7 @@ class StatusCommand extends Command
     protected function checkAvailableVariants(): void
     {
         $sourcePath = config('flux-font-awesome.source_path');
-        $svgsPath = $sourcePath . '/svgs';
+        $svgsPath = $sourcePath.'/svgs';
 
         $this->line('<fg=yellow>Available Variants:</>');
         $this->newLine();
@@ -114,13 +115,14 @@ class StatusCommand extends Command
         if (! File::isDirectory($svgsPath)) {
             $this->components->warn('SVGs directory not found');
             $this->newLine();
+
             return;
         }
 
         $availableVariants = [];
 
         foreach (Variant::ALL as $variant) {
-            $variantDir = $svgsPath . '/' . Variant::toDirectory($variant);
+            $variantDir = $svgsPath.'/'.Variant::toDirectory($variant);
 
             if (File::isDirectory($variantDir)) {
                 $count = count(File::files($variantDir));
@@ -146,7 +148,7 @@ class StatusCommand extends Command
         $icons = [];
 
         foreach (Variant::ALL as $variant) {
-            $variantDir = $svgsPath . '/' . Variant::toDirectory($variant);
+            $variantDir = $svgsPath.'/'.Variant::toDirectory($variant);
 
             if (! File::isDirectory($variantDir)) {
                 continue;

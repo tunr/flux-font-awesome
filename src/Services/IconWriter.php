@@ -118,7 +118,7 @@ CASE;
             $cases[] = "    '{$variant}' => '{$data['viewBox']}',";
         }
 
-        return implode("\n", $cases) . "\n";
+        return implode("\n", $cases)."\n";
     }
 
     /**
@@ -127,6 +127,7 @@ CASE;
     protected function generateDefaultCase(array $variants): string
     {
         $firstVariant = reset($variants);
+
         return "            {$firstVariant['paths']}";
     }
 
