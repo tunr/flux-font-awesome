@@ -30,7 +30,10 @@ class SvgParser
      */
     protected function extractViewBox(Crawler $svg): string
     {
-        $viewBox = $svg->attr('viewBox');
+        // Try to get viewBox attribute directly from the DOMElement
+        // Note: DOM normalizes attribute names to lowercase
+        $node = $svg->getNode(0);
+        $viewBox = $node?->getAttribute('viewbox') ?: null;
 
         if ($viewBox === null || $viewBox === '') {
             // Fallback to common Font Awesome viewBox
@@ -81,19 +84,24 @@ class SvgParser
     protected function extractAttributes(Crawler $svg): array
     {
         $attributes = [];
+        $node = $svg->getNode(0);
+
+        if (! $node) {
+            return $attributes;
+        }
 
         // Preserve xmlns if present
-        if ($xmlns = $svg->attr('xmlns')) {
+        if ($xmlns = $node->getAttribute('xmlns')) {
             $attributes['xmlns'] = $xmlns;
         }
 
         // Preserve aria-hidden if present
-        if ($ariaHidden = $svg->attr('aria-hidden')) {
+        if ($ariaHidden = $node->getAttribute('aria-hidden')) {
             $attributes['aria-hidden'] = $ariaHidden;
         }
 
         // Check for fill attribute
-        if ($fill = $svg->attr('fill')) {
+        if ($fill = $node->getAttribute('fill')) {
             $attributes['fill'] = $fill;
         }
 

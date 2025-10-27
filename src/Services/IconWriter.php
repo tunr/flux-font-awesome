@@ -59,31 +59,49 @@ class IconWriter
      */
     protected function generateBladeTemplate(string $iconName, array $variants): string
     {
-        $defaultVariant = config('flux-font-awesome.default_variant', 'solid');
+        $defaultStyle = config('flux-font-awesome.default_variant', 'thin');
+        $defaultSize = config('flux-font-awesome.default_size', 'md');
         $variantCases = $this->generateVariantCases($variants);
-        $defaultViewBox = $variants[$defaultVariant]['viewBox'] ?? reset($variants)['viewBox'];
+        $viewBox = $this->getCommonViewBox($variants);
 
         return <<<BLADE
 @props([
-    'variant' => '{$defaultVariant}',
+    'variant' => null,  // Flux passes this for icon sizing (outline/solid/mini/micro)
+    'style' => '{$defaultStyle}',  // FA weight (thin/light/regular/solid/duotone)
+    'size' => '{$defaultSize}',    // FA size (xs/sm/md/lg/xl)
 ])
 
 @php
-// Determine which variant to render
-\$resolvedVariant = \$variant;
+// Map Flux variants to sizes (Flux components pass variant for sizing)
+\$fluxVariantToSize = [
+    'outline' => '[:where(&)]:size-6',  // 24px
+    'solid' => '[:where(&)]:size-6',    // 24px
+    'mini' => '[:where(&)]:size-5',     // 20px
+    'micro' => '[:where(&)]:size-4',    // 16px
+];
 
-// ViewBox based on variant
-\$viewBox = match(\$resolvedVariant) {
-{$this->generateViewBoxCases($variants)}    default => '{$defaultViewBox}',
-};
+// Determine size: Flux variant takes precedence, then size prop, then config default
+if (\$variant && isset(\$fluxVariantToSize[\$variant])) {
+    \$sizeClass = \$fluxVariantToSize[\$variant];
+} else {
+    // Apply FA size with [:where(&)] for low specificity (allows parent overrides)
+    \$configSize = config('flux-font-awesome.sizes')[\$size] ?? config('flux-font-awesome.sizes')['{$defaultSize}'];
+    \$sizeClass = '[:where(&)]:' . \$configSize;
+}
+
+\$classes = Flux::classes('shrink-0')->add(\$sizeClass);
+
+// Apply icon scale for optical alignment with Heroicons
+\$scale = config('flux-font-awesome.icon_scale', 1.0);
+\$scaleStyle = \$scale !== 1.0 ? ' style="transform: scale(' . \$scale . '); transform-origin: center center;"' : '';
 @endphp
 
-<svg {{ \$attributes->merge(['class' => 'shrink-0']) }} viewBox="{{ \$viewBox }}" data-flux-icon aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    @switch(\$resolvedVariant)
+<svg {{ \$attributes->class(\$classes) }} viewBox="{$viewBox}"{!! \$scaleStyle !!} data-flux-icon aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+    @switch(\$style)
 {$variantCases}
         @default
-            {{-- Fallback to first available variant --}}
-{$this->generateDefaultCase($variants)}
+            {{-- Fallback to default style --}}
+{$this->generateDefaultCase($variants, $defaultStyle)}
     @endswitch
 </svg>
 BLADE;
@@ -108,24 +126,27 @@ CASE;
     }
 
     /**
-     * Generate viewBox match cases.
+     * Get common viewBox from variants (FA icons typically share viewBox).
      */
-    protected function generateViewBoxCases(array $variants): string
+    protected function getCommonViewBox(array $variants): string
     {
-        $cases = [];
+        // FA icons typically share viewBox across variants - just use first
+        $firstVariant = reset($variants);
 
-        foreach ($variants as $variant => $data) {
-            $cases[] = "    '{$variant}' => '{$data['viewBox']}',";
-        }
-
-        return implode("\n", $cases)."\n";
+        return $firstVariant['viewBox'] ?? '0 0 512 512';
     }
 
     /**
-     * Generate the default case (first available variant).
+     * Generate the default case (uses configured default style).
      */
-    protected function generateDefaultCase(array $variants): string
+    protected function generateDefaultCase(array $variants, string $defaultStyle): string
     {
+        // Try to use the configured default style
+        if (isset($variants[$defaultStyle])) {
+            return "            {$variants[$defaultStyle]['paths']}";
+        }
+
+        // Fallback to first available variant
         $firstVariant = reset($variants);
 
         return "            {$firstVariant['paths']}";

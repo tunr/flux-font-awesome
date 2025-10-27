@@ -68,10 +68,9 @@ return [
     */
 
     'sizes' => [
-        'xs' => 'size-3',      // 12px
-        'sm' => 'size-4',      // 16px
-        'base' => 'size-5',    // 20px
-        'md' => 'size-6',      // 24px
+        'xs' => 'size-4',      // 16px (matches Flux micro)
+        'sm' => 'size-5',      // 20px (matches Flux mini)
+        'md' => 'size-6',      // 24px (matches Flux outline/solid, default)
         'lg' => 'size-8',      // 32px
         'xl' => 'size-10',     // 40px
         '2xl' => 'size-12',    // 48px
@@ -87,6 +86,23 @@ return [
     */
 
     'default_size' => 'md',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Icon Scale
+    |--------------------------------------------------------------------------
+    |
+    | Visual scaling factor to add optical padding around FA icons for better
+    | alignment with Heroicons and text. FA icons fill their viewBox completely
+    | while Heroicons have internal padding. This scale compensates visually.
+    |
+    | Set to 1.0 to disable scaling.
+    | Recommended range: 0.85 - 0.95 (5-15% breathing room)
+    | Start at 0.90 and adjust to taste.
+    |
+    */
+
+    'icon_scale' => 0.875,
 
     /*
     |--------------------------------------------------------------------------
