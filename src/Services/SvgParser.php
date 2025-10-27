@@ -33,7 +33,13 @@ class SvgParser
         // Try to get viewBox attribute directly from the DOMElement
         // Note: DOM normalizes attribute names to lowercase
         $node = $svg->getNode(0);
-        $viewBox = $node?->getAttribute('viewbox') ?: null;
+
+        // Type guard: ensure we have a DOMElement
+        if (! $node instanceof \DOMElement) {
+            return '0 0 512 512';
+        }
+
+        $viewBox = $node->getAttribute('viewbox') ?: null;
 
         if ($viewBox === null || $viewBox === '') {
             // Fallback to common Font Awesome viewBox
@@ -86,7 +92,8 @@ class SvgParser
         $attributes = [];
         $node = $svg->getNode(0);
 
-        if (! $node) {
+        // Type guard: ensure we have a DOMElement
+        if (! $node instanceof \DOMElement) {
             return $attributes;
         }
 
