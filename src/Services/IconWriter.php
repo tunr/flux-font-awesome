@@ -59,52 +59,41 @@ class IconWriter
      */
     protected function generateBladeTemplate(string $iconName, array $variants): string
     {
-        $defaultStyle = config('flux-font-awesome.default_variant', 'thin');
-        $defaultSize = config('flux-font-awesome.default_size', 'md');
         $variantCases = $this->generateVariantCases($variants);
         $viewBox = $this->getCommonViewBox($variants);
+        $defaultCase = $this->generateDefaultCase($variants);
 
-        return <<<BLADE
+        $template = <<<'BLADE'
 @props([
     'variant' => null,  // Flux passes this for icon sizing (outline/solid/mini/micro)
-    'style' => '{$defaultStyle}',  // FA weight (thin/light/regular/solid/duotone)
-    'size' => '{$defaultSize}',    // FA size (xs/sm/md/lg/xl)
+    'style' => null,    // FA weight (thin/light/regular/solid/duotone)
+    'size' => null,     // FA size (xs/sm/md/lg/xl)
 ])
 
 @php
-// Map Flux variants to sizes (Flux components pass variant for sizing)
-\$fluxVariantToSize = [
-    'outline' => '[:where(&)]:size-6',  // 24px
-    'solid' => '[:where(&)]:size-6',    // 24px
-    'mini' => '[:where(&)]:size-5',     // 20px
-    'micro' => '[:where(&)]:size-4',    // 16px
-];
+use Tunr\FluxFontAwesome\Support\IconHelper;
 
-// Determine size: Flux variant takes precedence, then size prop, then config default
-if (\$variant && isset(\$fluxVariantToSize[\$variant])) {
-    \$sizeClass = \$fluxVariantToSize[\$variant];
-} else {
-    // Apply FA size with [:where(&)] for low specificity (allows parent overrides)
-    \$configSize = config('flux-font-awesome.sizes')[\$size] ?? config('flux-font-awesome.sizes')['{$defaultSize}'];
-    \$sizeClass = '[:where(&)]:' . \$configSize;
-}
-
-\$classes = Flux::classes('shrink-0')->add(\$sizeClass);
-
-// Apply icon scale for optical alignment with Heroicons
-\$scale = config('flux-font-awesome.icon_scale', 1.0);
-\$scaleStyle = \$scale !== 1.0 ? ' style="transform: scale(' . \$scale . '); transform-origin: center center;"' : '';
+$style = IconHelper::resolveStyle($style);
+$sizeClass = IconHelper::resolveSizeClass($variant, $size);
+$classes = Flux::classes('shrink-0')->add($sizeClass);
+$scaleStyle = IconHelper::getScaleStyle();
 @endphp
 
-<svg {{ \$attributes->class(\$classes) }} viewBox="{$viewBox}"{!! \$scaleStyle !!} data-flux-icon aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-    @switch(\$style)
-{$variantCases}
+<svg {{ $attributes->class($classes) }} viewBox="VIEW_BOX_PLACEHOLDER"{!! $scaleStyle !!} data-flux-icon aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+    @switch($style)
+VARIANT_CASES_PLACEHOLDER
         @default
-            {{-- Fallback to default style --}}
-{$this->generateDefaultCase($variants, $defaultStyle)}
+            {{-- Fallback to configured default style --}}
+DEFAULT_CASE_PLACEHOLDER
     @endswitch
 </svg>
 BLADE;
+
+        return str_replace(
+            ['VIEW_BOX_PLACEHOLDER', 'VARIANT_CASES_PLACEHOLDER', 'DEFAULT_CASE_PLACEHOLDER'],
+            [$viewBox, $variantCases, $defaultCase],
+            $template
+        );
     }
 
     /**
@@ -139,9 +128,11 @@ CASE;
     /**
      * Generate the default case (uses configured default style).
      */
-    protected function generateDefaultCase(array $variants, string $defaultStyle): string
+    protected function generateDefaultCase(array $variants): string
     {
         // Try to use the configured default style
+        $defaultStyle = config('flux-font-awesome.default_variant', 'solid');
+
         if (isset($variants[$defaultStyle])) {
             return "            {$variants[$defaultStyle]['paths']}";
         }
