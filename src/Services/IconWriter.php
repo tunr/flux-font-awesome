@@ -59,38 +59,19 @@ class IconWriter
      */
     protected function generateBladeTemplate(string $iconName, array $variants): string
     {
+        $stubPath = __DIR__.'/../../stubs/icon.blade.stub';
+
+        if (! $this->files->exists($stubPath)) {
+            throw new \RuntimeException("Icon template stub not found at: {$stubPath}");
+        }
+
+        $template = $this->files->get($stubPath);
         $variantCases = $this->generateVariantCases($variants);
         $viewBox = $this->getCommonViewBox($variants);
         $defaultCase = $this->generateDefaultCase($variants);
 
-        $template = <<<'BLADE'
-@props([
-    'variant' => null,  // Flux passes this for icon sizing (outline/solid/mini/micro)
-    'style' => null,    // FA weight (thin/light/regular/solid/duotone)
-    'size' => null,     // FA size (xs/sm/md/lg/xl)
-])
-
-@php
-use Tunr\FluxFontAwesome\Support\IconHelper;
-
-$style = IconHelper::resolveStyle($style);
-$sizeClass = IconHelper::resolveSizeClass($variant, $size);
-$classes = Flux::classes('shrink-0')->add($sizeClass);
-$scaleStyle = IconHelper::getScaleStyle();
-@endphp
-
-<svg {{ $attributes->class($classes) }} viewBox="VIEW_BOX_PLACEHOLDER"{!! $scaleStyle !!} data-flux-icon aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" overflow="visible">
-    @switch($style)
-VARIANT_CASES_PLACEHOLDER
-        @default
-            {{-- Fallback to configured default style --}}
-DEFAULT_CASE_PLACEHOLDER
-    @endswitch
-</svg>
-BLADE;
-
         return str_replace(
-            ['VIEW_BOX_PLACEHOLDER', 'VARIANT_CASES_PLACEHOLDER', 'DEFAULT_CASE_PLACEHOLDER'],
+            ['{{VIEW_BOX}}', '{{VARIANT_CASES}}', '{{DEFAULT_CASE}}'],
             [$viewBox, $variantCases, $defaultCase],
             $template
         );
