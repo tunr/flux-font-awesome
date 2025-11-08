@@ -129,7 +129,7 @@ CASE;
      */
     protected function getIconFilePath(string $iconName, string $outputPath): string
     {
-        return sprintf('%s/%s.blade.php', rtrim($outputPath, '/'), $iconName);
+        return sprintf('%s/fa-%s.blade.php', rtrim($outputPath, '/'), $iconName);
     }
 
     /**
@@ -177,7 +177,9 @@ CASE;
 
         return collect($files)
             ->filter(fn ($file) => $file->getExtension() === 'php')
-            ->map(fn ($file) => $file->getFilenameWithoutExtension())
+            ->map(fn ($file) => $file->getBasename('.blade.php'))
+            ->filter(fn ($name) => str_starts_with($name, 'fa-'))
+            ->map(fn ($name) => str_replace('fa-', '', $name))
             ->values()
             ->all();
     }

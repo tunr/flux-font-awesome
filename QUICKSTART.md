@@ -92,49 +92,49 @@ php artisan fa:build user home github star
 ### Basic Icons
 
 ```blade
-<flux:icon.fa.user />
-<flux:icon.fa.home />
-<flux:icon.fa.github />
+<flux:icon.fa-user />
+<flux:icon.fa-home />
+<flux:icon.fa-github />
 ```
 
 ### With Variants
 
 ```blade
 {{-- Solid (default) --}}
-<flux:icon.fa.user variant="solid" />
+<flux:icon.fa-user style="solid" />
 
 {{-- Regular --}}
-<flux:icon.fa.user variant="regular" />
+<flux:icon.fa-user style="regular" />
 
 {{-- Brands --}}
-<flux:icon.fa.github variant="brands" />
+<flux:icon.fa-github style="brands" />
 
 {{-- Pro variants (if you have Pro) --}}
-<flux:icon.fa.user variant="light" />
-<flux:icon.fa.user variant="thin" />
-<flux:icon.fa.user variant="duotone" />
+<flux:icon.fa-user style="light" />
+<flux:icon.fa-user style="thin" />
+<flux:icon.fa-user style="duotone" />
 ```
 
 ### With Styling
 
 ```blade
 {{-- Size and color --}}
-<flux:icon.fa.user class="size-6 text-blue-500" />
+<flux:icon.fa-user class="size-6 text-blue-500" />
 
 {{-- Larger --}}
-<flux:icon.fa.user class="size-8" />
+<flux:icon.fa-user class="size-8" />
 
 {{-- Inherits text color --}}
 <div class="text-red-500">
-    <flux:icon.fa.user />
+    <flux:icon.fa-user />
 </div>
 ```
 
 ### With Additional Attributes
 
 ```blade
-<flux:icon.fa.user
-    variant="regular"
+<flux:icon.fa-user
+    style="regular"
     class="size-6 text-gray-700"
     aria-label="User profile"
     data-tooltip="View profile"
