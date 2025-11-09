@@ -35,7 +35,7 @@ php artisan fa:install
 
 This will:
 - Publish the configuration file to `config/flux-font-awesome.php`
-- Create the icon output directory at `resources/views/flux/icon/fa`
+- Create the icon output directory at `resources/views/flux/icon`
 - Check for Font Awesome installation
 
 ## Font Awesome Setup
@@ -153,29 +153,38 @@ php artisan fa:build --clean
 
 ### Basic Usage
 
-Use Font Awesome icons in your Blade templates with the `flux:icon` component:
+Use Font Awesome icons in your Blade templates:
 
 ```blade
-<flux:icon.fa.user />
-<flux:icon.fa.home variant="regular" />
-<flux:icon.fa.github variant="brands" />
+{{-- Direct component syntax --}}
+<flux:icon.fa-user />
+<flux:icon.fa-home style="regular" />
+<flux:icon.fa-github style="brands" />
+
+{{-- Name attribute syntax --}}
+<flux:icon name="fa-user" />
+<flux:icon name="fa-home" style="regular" />
+
+{{-- In Flux components (icon attribute) --}}
+<flux:button icon="fa-user">Profile</flux:button>
+<flux:badge icon="fa-star">Featured</flux:badge>
 ```
 
-### Variants
+### Variants (Styles)
 
-Specify different Font Awesome variants:
+Specify different Font Awesome variants using the `style` prop:
 
 ```blade
 {{-- Free variants --}}
-<flux:icon.fa.user variant="solid" />
-<flux:icon.fa.user variant="regular" />
-<flux:icon.fa.github variant="brands" />
+<flux:icon.fa-user style="solid" />
+<flux:icon.fa-user style="regular" />
+<flux:icon.fa-github style="brands" />
 
 {{-- Pro variants --}}
-<flux:icon.fa.user variant="light" />
-<flux:icon.fa.user variant="thin" />
-<flux:icon.fa.user variant="duotone" />
-<flux:icon.fa.user variant="sharp-solid" />
+<flux:icon.fa-user style="light" />
+<flux:icon.fa-user style="thin" />
+<flux:icon.fa-user style="duotone" />
+<flux:icon.fa-user style="sharp-solid" />
 ```
 
 ### Sizing
@@ -184,11 +193,16 @@ Use Tailwind CSS classes or the pre-configured size presets:
 
 ```blade
 {{-- Using Tailwind classes directly --}}
-<flux:icon.fa.user class="size-6" />
-<flux:icon.fa.user class="size-8 text-blue-500" />
+<flux:icon.fa-user class="size-6" />
+<flux:icon.fa-user class="size-8 text-blue-500" />
 
 {{-- Using size presets from config --}}
-{{-- xs: size-3, sm: size-4, base: size-5, md: size-6, lg: size-8, xl: size-10, 2xl: size-12 --}}
+<flux:icon.fa-user size="xs" />  {{-- size-4 (16px) --}}
+<flux:icon.fa-user size="sm" />  {{-- size-5 (20px) --}}
+<flux:icon.fa-user size="md" />  {{-- size-6 (24px) default --}}
+<flux:icon.fa-user size="lg" />  {{-- size-8 (32px) --}}
+<flux:icon.fa-user size="xl" />  {{-- size-10 (40px) --}}
+<flux:icon.fa-user size="2xl" /> {{-- size-12 (48px) --}}
 ```
 
 ### Styling
@@ -197,10 +211,10 @@ Icons inherit `currentColor` by default, so they adapt to text color:
 
 ```blade
 <div class="text-blue-500">
-    <flux:icon.fa.user /> {{-- Will be blue --}}
+    <flux:icon.fa-user /> {{-- Will be blue --}}
 </div>
 
-<flux:icon.fa.user class="text-red-500" /> {{-- Explicitly red --}}
+<flux:icon.fa-user class="text-red-500" /> {{-- Explicitly red --}}
 ```
 
 ### Additional Attributes
@@ -208,7 +222,7 @@ Icons inherit `currentColor` by default, so they adapt to text color:
 Pass any HTML attributes:
 
 ```blade
-<flux:icon.fa.user
+<flux:icon.fa-user
     class="size-6 text-blue-500"
     aria-label="User icon"
     data-tooltip="User profile"
@@ -222,8 +236,8 @@ The configuration file at `config/flux-font-awesome.php` allows you to customize
 ### Paths
 
 ```php
-'source_path' => env('FA_SOURCE_PATH', base_path('node_modules/@fortawesome/fontawesome-free')),
-'output_path' => resource_path('views/flux/icon/fa'),
+'source_path' => env('FA_SOURCE_PATH'),
+'output_path' => resource_path('views/flux/icon'),
 ```
 
 ### Defaults
@@ -312,26 +326,22 @@ php artisan fa:status
 
 ### Single-file, Multi-variant Architecture
 
-Each icon is stored as a single Blade component file containing all available variants:
+Each icon is stored as a single Blade component file (prefixed with `fa-`) containing all available variants:
 
 ```blade
-{{-- resources/views/flux/icon/fa/user.blade.php --}}
-@props(['variant' => 'solid'])
+{{-- resources/views/flux/icon/fa-user.blade.php --}}
+@props([
+    'variant' => null,  // Flux icon sizing (outline/solid/mini/micro)
+    'style' => null,    // FA style (solid/regular/light/thin/duotone/brands)
+    'size' => null,     // FA size (xs/sm/md/lg/xl/2xl)
+])
 
-@php
-$viewBox = match($resolvedVariant) {
-    'solid' => '0 0 448 512',
-    'regular' => '0 0 448 512',
-    default => '0 0 448 512',
-};
-@endphp
-
-<svg {{ $attributes->merge(['class' => 'shrink-0']) }}
-     viewBox="{{ $viewBox }}"
+<svg {{ $attributes->class('shrink-0') }}
+     viewBox="0 0 448 512"
      data-flux-icon
      aria-hidden="true"
      fill="currentColor">
-    @switch($resolvedVariant)
+    @switch($style)
         @case('solid')
             <path d="..." />
             @break

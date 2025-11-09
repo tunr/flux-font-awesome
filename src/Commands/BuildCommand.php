@@ -10,7 +10,7 @@ use Tunr\FluxFontAwesome\Support\Variant;
 
 class BuildCommand extends Command
 {
-    protected $signature = 'fa:build
+    protected $signature = 'flux-fa:build
                             {icons?* : Specific icons to build (e.g., user github)}
                             {--variant=* : Specific variants to build (e.g., solid regular)}
                             {--refresh : Rebuild all icons from scratch}

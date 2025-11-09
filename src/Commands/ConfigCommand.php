@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 
 class ConfigCommand extends Command
 {
-    protected $signature = 'fa:config';
+    protected $signature = 'flux-fa:config';
 
     protected $description = 'Display current Flux Font Awesome configuration';
 

@@ -8,7 +8,7 @@ use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
 
 class InstallCommand extends Command
 {
-    protected $signature = 'fa:install
+    protected $signature = 'flux-fa:install
                             {--force : Overwrite existing configuration}';
 
     protected $description = 'Install Flux Font Awesome package';
@@ -63,7 +63,7 @@ class InstallCommand extends Command
 
     protected function createIconDirectory(): void
     {
-        $iconPath = config('flux-font-awesome.output_path', resource_path('views/flux/icon/fa'));
+        $iconPath = config('flux-font-awesome.output_path');
 
         if (! File::isDirectory($iconPath)) {
             File::makeDirectory($iconPath, 0755, true);
@@ -83,10 +83,13 @@ class InstallCommand extends Command
         } else {
             $this->components->warn('Font Awesome not found');
             $this->line('');
-            $this->line('Install Font Awesome Free:');
+            $this->line('Install Font Awesome Free via npm:');
             $this->line('  <fg=cyan>npm install @fortawesome/fontawesome-free</>');
             $this->line('');
-            $this->line('Or for Pro:');
+            $this->line('Or via composer:');
+            $this->line('  <fg=cyan>composer require fortawesome/font-awesome</>');
+            $this->line('');
+            $this->line('For Pro:');
             $this->line('  <fg=cyan>npm install @fortawesome/fontawesome-pro</>');
             $this->line('');
             $this->line('For custom paths, set FA_SOURCE_PATH in .env');
@@ -98,10 +101,10 @@ class InstallCommand extends Command
         $this->line('<fg=gray>Next steps:</>');
         $this->line('');
         $this->line('  1. Build icons:');
-        $this->line('     <fg=yellow>php artisan fa:build</>');
+        $this->line('     <fg=yellow>php artisan flux-fa:build</>');
         $this->line('');
         $this->line('  2. Use in Blade templates:');
-        $this->line('     <fg=cyan><flux:icon.fa.user variant="solid" /></>');
+        $this->line('     <fg=cyan><flux:icon.fa-user variant="solid" /></>');
         $this->line('');
         $this->line('Tip: Font Awesome is auto-detected in node_modules or vendor');
         $this->line('');

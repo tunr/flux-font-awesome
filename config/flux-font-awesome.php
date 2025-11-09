@@ -27,10 +27,11 @@ return [
     |
     | Where generated icon Blade components will be stored. By default, this
     | follows Flux's pattern of storing custom icons in resources/views/flux/icon.
+    | Icon files are prefixed with 'fa-' to prevent collision with Heroicons.
     |
     */
 
-    'output_path' => resource_path('views/flux/icon/fa'),
+    'output_path' => resource_path('views/flux/icon'),
 
     /*
     |--------------------------------------------------------------------------

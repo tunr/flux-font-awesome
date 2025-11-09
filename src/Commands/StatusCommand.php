@@ -10,7 +10,7 @@ use Tunr\FluxFontAwesome\Support\Variant;
 
 class StatusCommand extends Command
 {
-    protected $signature = 'fa:status';
+    protected $signature = 'flux-fa:status';
 
     protected $description = 'Show Font Awesome icon build status';
 
@@ -81,7 +81,7 @@ class StatusCommand extends Command
 
         if (! File::isDirectory($outputPath)) {
             $this->components->warn('No icons built yet');
-            $this->line('  Run: <fg=cyan>php artisan fa:build</>');
+            $this->line('  Run: <fg=cyan>php artisan flux-fa:build</>');
             $this->newLine();
 
             return;
@@ -92,7 +92,7 @@ class StatusCommand extends Command
 
         if ($count === 0) {
             $this->components->warn('No icons built yet');
-            $this->line('  Run: <fg=cyan>php artisan fa:build</>');
+            $this->line('  Run: <fg=cyan>php artisan flux-fa:build</>');
         } else {
             $this->components->task("Built icons: {$count}");
             $this->line("  <fg=gray>Output path:</> <fg=cyan>{$outputPath}</>");
