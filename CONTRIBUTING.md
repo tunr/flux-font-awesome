@@ -116,7 +116,7 @@ This approach:
 - Constants for all Font Awesome variants
 - Validates variant names
 - Maps to directory names
-- Handles aliases (fas→solid, far→regular, etc.)
+- Build command auto-detects all available variants
 
 ### Command Layer
 

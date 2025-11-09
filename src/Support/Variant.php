@@ -128,39 +128,4 @@ class Variant
         };
     }
 
-    /**
-     * Normalize a variant name (handle FontAwesome class name aliases).
-     *
-     * Supports both FontAwesome v5 (fas, far, fab) and v6 (fa-solid, fa-regular, fa-brands) syntax.
-     */
-    public static function normalize(string $variant): string
-    {
-        return match (strtolower($variant)) {
-            // FontAwesome v5 class name prefixes
-            'fas' => self::FREE_SOLID,
-            'far' => self::FREE_REGULAR,
-            'fab' => self::FREE_BRANDS,
-            'fal' => self::PRO_LIGHT,
-            'fat' => self::PRO_THIN,
-            'fad' => self::PRO_DUOTONE,
-            'fass' => self::PRO_SHARP_SOLID,
-            'fasr' => self::PRO_SHARP_REGULAR,
-            'fasl' => self::PRO_SHARP_LIGHT,
-            'fast' => self::PRO_SHARP_THIN,
-
-            // FontAwesome v6 long-form class names
-            'fa-solid' => self::FREE_SOLID,
-            'fa-regular' => self::FREE_REGULAR,
-            'fa-brands' => self::FREE_BRANDS,
-            'fa-light' => self::PRO_LIGHT,
-            'fa-thin' => self::PRO_THIN,
-            'fa-duotone' => self::PRO_DUOTONE,
-            'fa-sharp-solid' => self::PRO_SHARP_SOLID,
-            'fa-sharp-regular' => self::PRO_SHARP_REGULAR,
-            'fa-sharp-light' => self::PRO_SHARP_LIGHT,
-            'fa-sharp-thin' => self::PRO_SHARP_THIN,
-
-            default => strtolower($variant),
-        };
-    }
 }

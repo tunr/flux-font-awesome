@@ -84,19 +84,19 @@ return [
     | Build Settings
     |--------------------------------------------------------------------------
     |
-    | Configuration for the fa:build command.
+    | Configuration for the flux-fa:build command.
+    |
+    | Include specific icons to avoid building all 2000+ Font Awesome icons.
+    | If empty, you must specify icons in the command (e.g., flux-fa:build user home).
     |
     */
 
     'build' => [
-        // Specific icons to include (empty = all icons)
+        // Specific icons to include (leave empty to require explicit icon arguments)
         'include' => [],
 
-        // Icons to exclude
+        // Icons to exclude from build
         'exclude' => [],
-
-        // Variants to build (empty = all available variants)
-        'variants' => [],
     ],
 
 ];

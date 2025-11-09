@@ -13,7 +13,6 @@ class BuildCommand extends Command
 {
     protected $signature = 'flux-fa:build
                             {icons?* : Specific icons to build (e.g., user github)}
-                            {--variant=* : Specific variants to build (e.g., solid regular)}
                             {--refresh : Rebuild all icons from scratch}
                             {--clean : Remove all existing icons before building}';
 
@@ -45,9 +44,8 @@ class BuildCommand extends Command
             $this->cleanIcons();
         }
 
-        // Determine which icons and variants to build
+        // Determine which icons to build
         $iconsToBuild = $this->getIconsToBuild();
-        $variantsToBuild = $this->getVariantsToBuild();
 
         if (empty($iconsToBuild)) {
             $this->components->error('No icons found to build');
@@ -55,8 +53,8 @@ class BuildCommand extends Command
             return self::FAILURE;
         }
 
-        // Build icons
-        $this->buildIcons($iconsToBuild, $variantsToBuild);
+        // Build icons (auto-detects all available variants)
+        $this->buildIcons($iconsToBuild);
 
         $this->newLine();
         $this->components->info("Built {$this->iconCount} icons with {$this->variantCount} total variants");
@@ -145,24 +143,7 @@ class BuildCommand extends Command
         return array_keys($icons);
     }
 
-    protected function getVariantsToBuild(): array
-    {
-        $requestedVariants = $this->option('variant');
-
-        if (! empty($requestedVariants)) {
-            return array_map(fn ($v) => Variant::normalize($v), $requestedVariants);
-        }
-
-        $configVariants = config('flux-font-awesome.build.variants', []);
-        if (! empty($configVariants)) {
-            return $configVariants;
-        }
-
-        // Build all available variants
-        return Variant::ALL;
-    }
-
-    protected function buildIcons(array $icons, array $variants): void
+    protected function buildIcons(array $icons): void
     {
         $sourcePath = $this->pathResolver->resolve(config('flux-font-awesome.source_path'));
         $outputPath = resource_path(FluxFontAwesomeServiceProvider::FLUX_ICON_PATH);
@@ -179,7 +160,7 @@ class BuildCommand extends Command
             }
 
             // Find all available variants for this icon
-            $variantSvgPaths = $this->findIconVariants($sourcePath, $iconName, $variants);
+            $variantSvgPaths = $this->findIconVariants($sourcePath, $iconName);
 
             if (empty($variantSvgPaths)) {
                 $progressBar->advance();
@@ -204,12 +185,13 @@ class BuildCommand extends Command
         $this->newLine();
     }
 
-    protected function findIconVariants(string $sourcePath, string $iconName, array $variants): array
+    protected function findIconVariants(string $sourcePath, string $iconName): array
     {
         $svgsPath = $sourcePath.'/svgs';
         $found = [];
 
-        foreach ($variants as $variant) {
+        // Auto-detect all available variants for this icon
+        foreach (Variant::ALL as $variant) {
             $variantDir = Variant::toDirectory($variant);
             $svgPath = sprintf('%s/%s/%s.svg', $svgsPath, $variantDir, $iconName);
 
