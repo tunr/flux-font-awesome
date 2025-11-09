@@ -23,6 +23,5 @@ abstract class TestCase extends Orchestra
     {
         // Set up test configuration
         config()->set('flux-font-awesome.source_path', __DIR__.'/fixtures/fontawesome');
-        config()->set('flux-font-awesome.output_path', __DIR__.'/fixtures/output');
     }
 }

@@ -63,7 +63,7 @@ class InstallCommand extends Command
 
     protected function createIconDirectory(): void
     {
-        $iconPath = config('flux-font-awesome.output_path');
+        $iconPath = resource_path('views/flux/icon');
 
         if (! File::isDirectory($iconPath)) {
             File::makeDirectory($iconPath, 0755, true);

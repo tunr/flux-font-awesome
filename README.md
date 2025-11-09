@@ -233,12 +233,15 @@ Pass any HTML attributes:
 
 The configuration file at `config/flux-font-awesome.php` allows you to customize:
 
-### Paths
+### Font Awesome Source Path
 
 ```php
 'source_path' => env('FA_SOURCE_PATH'),
-'output_path' => resource_path('views/flux/icon'),
 ```
+
+The package automatically detects Font Awesome in `node_modules` or `vendor`. Only set this if you have a custom installation location.
+
+> **Note:** Icons are always output to `resources/views/flux/icon` as required by Flux UI. This path cannot be changed.
 
 ### Defaults
 

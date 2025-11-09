@@ -84,7 +84,7 @@ class BuildCommand extends Command
 
     protected function cleanIcons(): void
     {
-        $outputPath = config('flux-font-awesome.output_path');
+        $outputPath = resource_path('views/flux/icon');
 
         if (File::isDirectory($outputPath)) {
             $files = File::files($outputPath);
@@ -164,7 +164,7 @@ class BuildCommand extends Command
     protected function buildIcons(array $icons, array $variants): void
     {
         $sourcePath = $this->pathResolver->resolve(config('flux-font-awesome.source_path'));
-        $outputPath = config('flux-font-awesome.output_path');
+        $outputPath = resource_path('views/flux/icon');
         $exclude = config('flux-font-awesome.build.exclude', []);
 
         $progressBar = $this->output->createProgressBar(count($icons));

@@ -74,7 +74,7 @@ class StatusCommand extends Command
 
     protected function checkBuiltIcons(): void
     {
-        $outputPath = config('flux-font-awesome.output_path');
+        $outputPath = resource_path('views/flux/icon');
 
         $this->line('<fg=yellow>Built Icons:</>');
         $this->newLine();

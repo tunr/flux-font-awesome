@@ -17,7 +17,7 @@ class ConfigCommand extends Command
 
         $this->displaySection('Paths', [
             'Source Path' => config('flux-font-awesome.source_path'),
-            'Output Path' => config('flux-font-awesome.output_path'),
+            'Output Path' => resource_path('views/flux/icon'),
         ]);
 
         $this->displaySection('Defaults', [
