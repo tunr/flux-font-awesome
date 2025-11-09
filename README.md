@@ -229,6 +229,34 @@ Pass any HTML attributes:
 />
 ```
 
+### Animations
+
+Font Awesome's built-in animation CSS is not included. Instead, use Tailwind's animation utilities for better integration and consistency:
+
+```blade
+{{-- Spinning icon (e.g., loading spinner) --}}
+<flux:icon.fa-spinner class="animate-spin" />
+
+{{-- Pulsing icon --}}
+<flux:icon.fa-circle class="animate-pulse" />
+
+{{-- Bouncing icon --}}
+<flux:icon.fa-arrow-down class="animate-bounce" />
+```
+
+You can also create custom animations using Tailwind's `@keyframes` in your CSS:
+
+```css
+@keyframes fa-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-fa-spin {
+    animation: fa-spin 2s linear infinite;
+}
+```
+
 ## Configuration
 
 The configuration file at `config/flux-font-awesome.php` allows you to customize:
