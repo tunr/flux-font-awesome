@@ -62,9 +62,9 @@ class VariantTest extends TestCase
     }
 
     /** @test */
-    public function it_normalizes_fontawesome_class_name_aliases(): void
+    public function it_normalizes_fontawesome_v5_class_name_aliases(): void
     {
-        // FontAwesome standard class name prefixes
+        // FontAwesome v5 class name prefixes (fas, far, fab, etc.)
         $this->assertEquals('solid', Variant::normalize('fas'));
         $this->assertEquals('regular', Variant::normalize('far'));
         $this->assertEquals('brands', Variant::normalize('fab'));
@@ -75,6 +75,22 @@ class VariantTest extends TestCase
         $this->assertEquals('sharp-regular', Variant::normalize('fasr'));
         $this->assertEquals('sharp-light', Variant::normalize('fasl'));
         $this->assertEquals('sharp-thin', Variant::normalize('fast'));
+    }
+
+    /** @test */
+    public function it_normalizes_fontawesome_v6_long_form_aliases(): void
+    {
+        // FontAwesome v6 long-form class names (fa-solid, fa-regular, etc.)
+        $this->assertEquals('solid', Variant::normalize('fa-solid'));
+        $this->assertEquals('regular', Variant::normalize('fa-regular'));
+        $this->assertEquals('brands', Variant::normalize('fa-brands'));
+        $this->assertEquals('light', Variant::normalize('fa-light'));
+        $this->assertEquals('thin', Variant::normalize('fa-thin'));
+        $this->assertEquals('duotone', Variant::normalize('fa-duotone'));
+        $this->assertEquals('sharp-solid', Variant::normalize('fa-sharp-solid'));
+        $this->assertEquals('sharp-regular', Variant::normalize('fa-sharp-regular'));
+        $this->assertEquals('sharp-light', Variant::normalize('fa-sharp-light'));
+        $this->assertEquals('sharp-thin', Variant::normalize('fa-sharp-thin'));
     }
 
     /** @test */
