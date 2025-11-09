@@ -247,8 +247,8 @@ The package automatically detects Font Awesome in `node_modules` or `vendor`. On
 
 ```php
 'default_variant' => 'solid',
-'fallback_strategy' => 'fallback', // or 'error'
 'default_size' => 'md',
+'icon_scale' => 0.875, // Visual scaling for better alignment with Heroicons
 ```
 
 ### Size Mappings

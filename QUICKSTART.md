@@ -166,8 +166,8 @@ return [
     // Change default variant
     'default_variant' => 'solid',
 
-    // Change fallback behavior
-    'fallback_strategy' => 'fallback', // or 'error'
+    // Adjust icon scale for better alignment
+    'icon_scale' => 0.875,
 
     // Build only specific icons
     'build' => [

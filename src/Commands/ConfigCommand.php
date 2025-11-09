@@ -24,7 +24,7 @@ class ConfigCommand extends Command
         $this->displaySection('Defaults', [
             'Default Variant' => config('flux-font-awesome.default_variant'),
             'Default Size' => config('flux-font-awesome.default_size'),
-            'Fallback Strategy' => config('flux-font-awesome.fallback_strategy'),
+            'Icon Scale' => config('flux-font-awesome.icon_scale'),
         ]);
 
         $this->displaySection('Sizes', config('flux-font-awesome.sizes'));
@@ -33,12 +33,6 @@ class ConfigCommand extends Command
             'Include Icons' => $this->formatArray(config('flux-font-awesome.build.include')),
             'Exclude Icons' => $this->formatArray(config('flux-font-awesome.build.exclude')),
             'Variants' => $this->formatArray(config('flux-font-awesome.build.variants')),
-            'Preserve Existing' => config('flux-font-awesome.build.preserve_existing') ? 'Yes' : 'No',
-        ]);
-
-        $this->displaySection('Duotone', [
-            'Primary Opacity' => config('flux-font-awesome.duotone.primary_opacity'),
-            'Secondary Opacity' => config('flux-font-awesome.duotone.secondary_opacity'),
         ]);
 
         return self::SUCCESS;
