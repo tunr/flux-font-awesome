@@ -65,24 +65,6 @@ class SvgParserTest extends TestCase
         $this->assertEquals('fa-primary', $result['paths'][1]['class']);
     }
 
-    /** @test */
-    public function it_detects_duotone_icons(): void
-    {
-        $duotoneSvg = '<svg viewBox="0 0 512 512">
-            <path d="M0 0" opacity="0.4"/>
-            <path d="M100 100" opacity="1"/>
-        </svg>';
-
-        $regularSvg = '<svg viewBox="0 0 512 512">
-            <path d="M0 0"/>
-        </svg>';
-
-        $parsedDuotone = $this->parser->parse($duotoneSvg);
-        $parsedRegular = $this->parser->parse($regularSvg);
-
-        $this->assertTrue($this->parser->isDuotone($parsedDuotone));
-        $this->assertFalse($this->parser->isDuotone($parsedRegular));
-    }
 
     /** @test */
     public function it_generates_path_markup(): void

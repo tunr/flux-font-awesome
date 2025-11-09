@@ -62,20 +62,19 @@ class VariantTest extends TestCase
     }
 
     /** @test */
-    public function it_normalizes_variant_aliases(): void
+    public function it_normalizes_fontawesome_class_name_aliases(): void
     {
+        // FontAwesome standard class name prefixes
         $this->assertEquals('solid', Variant::normalize('fas'));
-        $this->assertEquals('solid', Variant::normalize('s'));
         $this->assertEquals('regular', Variant::normalize('far'));
-        $this->assertEquals('regular', Variant::normalize('r'));
         $this->assertEquals('brands', Variant::normalize('fab'));
-        $this->assertEquals('brands', Variant::normalize('b'));
         $this->assertEquals('light', Variant::normalize('fal'));
-        $this->assertEquals('light', Variant::normalize('l'));
         $this->assertEquals('thin', Variant::normalize('fat'));
-        $this->assertEquals('thin', Variant::normalize('t'));
         $this->assertEquals('duotone', Variant::normalize('fad'));
-        $this->assertEquals('duotone', Variant::normalize('d'));
+        $this->assertEquals('sharp-solid', Variant::normalize('fass'));
+        $this->assertEquals('sharp-regular', Variant::normalize('fasr'));
+        $this->assertEquals('sharp-light', Variant::normalize('fasl'));
+        $this->assertEquals('sharp-thin', Variant::normalize('fast'));
     }
 
     /** @test */

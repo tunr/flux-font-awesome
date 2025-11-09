@@ -129,21 +129,21 @@ class Variant
     }
 
     /**
-     * Normalize a variant name (handle aliases).
+     * Normalize a variant name (handle FontAwesome class name aliases).
      */
     public static function normalize(string $variant): string
     {
         return match (strtolower($variant)) {
-            'fas', 's' => self::FREE_SOLID,
-            'far', 'r' => self::FREE_REGULAR,
-            'fab', 'b' => self::FREE_BRANDS,
-            'fal', 'l' => self::PRO_LIGHT,
-            'fat', 't' => self::PRO_THIN,
-            'fad', 'd' => self::PRO_DUOTONE,
-            'fass', 'ss' => self::PRO_SHARP_SOLID,
-            'fasr', 'sr' => self::PRO_SHARP_REGULAR,
-            'fasl', 'sl' => self::PRO_SHARP_LIGHT,
-            'fast', 'st' => self::PRO_SHARP_THIN,
+            'fas' => self::FREE_SOLID,
+            'far' => self::FREE_REGULAR,
+            'fab' => self::FREE_BRANDS,
+            'fal' => self::PRO_LIGHT,
+            'fat' => self::PRO_THIN,
+            'fad' => self::PRO_DUOTONE,
+            'fass' => self::PRO_SHARP_SOLID,
+            'fasr' => self::PRO_SHARP_REGULAR,
+            'fasl' => self::PRO_SHARP_LIGHT,
+            'fast' => self::PRO_SHARP_THIN,
             default => strtolower($variant),
         };
     }

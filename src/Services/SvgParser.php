@@ -159,20 +159,4 @@ class SvgParser
 
         return sprintf('<path %s />', $attributeString);
     }
-
-    /**
-     * Check if SVG contains duotone paths (typically 2 paths with opacity).
-     */
-    public function isDuotone(array $parsedData): bool
-    {
-        $paths = $parsedData['paths'];
-
-        if (count($paths) !== 2) {
-            return false;
-        }
-
-        // Duotone icons typically have opacity or fill-opacity on one or both paths
-        return isset($paths[0]['opacity']) || isset($paths[0]['fill-opacity']) ||
-               isset($paths[1]['opacity']) || isset($paths[1]['fill-opacity']);
-    }
 }

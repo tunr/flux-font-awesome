@@ -45,14 +45,6 @@ class FluxFontAwesomeServiceProvider extends ServiceProvider
             __DIR__.'/../config/flux-font-awesome.php' => config_path('flux-font-awesome.php'),
         ], 'flux-font-awesome-config');
 
-        // Publish views (icon components)
-        $this->publishes([
-            __DIR__.'/../resources/views' => resource_path('views'),
-        ], 'flux-font-awesome-views');
-
-        // Load views from package
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'flux-font-awesome');
-
         // Register commands
         if ($this->app->runningInConsole()) {
             $this->commands([
