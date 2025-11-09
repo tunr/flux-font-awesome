@@ -16,7 +16,7 @@ class BuildCommand extends Command
                             {--refresh : Rebuild all icons from scratch}
                             {--clean : Remove all existing icons before building}';
 
-    protected $description = 'Build Font Awesome icon components';
+    protected $description = 'Build Flux Font Awesome icon components';
 
     protected int $iconCount = 0;
 

@@ -12,7 +12,7 @@ class StatusCommand extends Command
 {
     protected $signature = 'flux-fa:status';
 
-    protected $description = 'Show Font Awesome icon build status';
+    protected $description = 'Show Flux Font Awesome icon build status';
 
     public function __construct(
         protected IconWriter $writer,
