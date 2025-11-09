@@ -14,6 +14,12 @@ use Tunr\FluxFontAwesome\Services\SvgParser;
 class FluxFontAwesomeServiceProvider extends ServiceProvider
 {
     /**
+     * The path where Flux UI expects custom icons to be stored.
+     * This is hardcoded by Flux and cannot be changed.
+     */
+    public const FLUX_ICON_PATH = 'views/flux/icon';
+
+    /**
      * Register any application services.
      */
     public function register(): void

@@ -4,6 +4,7 @@ namespace Tunr\FluxFontAwesome\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Tunr\FluxFontAwesome\FluxFontAwesomeServiceProvider;
 use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
 use Tunr\FluxFontAwesome\Services\IconWriter;
 use Tunr\FluxFontAwesome\Support\Variant;
@@ -74,7 +75,7 @@ class StatusCommand extends Command
 
     protected function checkBuiltIcons(): void
     {
-        $outputPath = resource_path('views/flux/icon');
+        $outputPath = resource_path(FluxFontAwesomeServiceProvider::FLUX_ICON_PATH);
 
         $this->line('<fg=yellow>Built Icons:</>');
         $this->newLine();

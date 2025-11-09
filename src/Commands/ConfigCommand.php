@@ -3,6 +3,7 @@
 namespace Tunr\FluxFontAwesome\Commands;
 
 use Illuminate\Console\Command;
+use Tunr\FluxFontAwesome\FluxFontAwesomeServiceProvider;
 
 class ConfigCommand extends Command
 {
@@ -17,7 +18,7 @@ class ConfigCommand extends Command
 
         $this->displaySection('Paths', [
             'Source Path' => config('flux-font-awesome.source_path'),
-            'Output Path' => resource_path('views/flux/icon'),
+            'Output Path' => resource_path(FluxFontAwesomeServiceProvider::FLUX_ICON_PATH),
         ]);
 
         $this->displaySection('Defaults', [

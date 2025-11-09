@@ -4,6 +4,7 @@ namespace Tunr\FluxFontAwesome\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Tunr\FluxFontAwesome\FluxFontAwesomeServiceProvider;
 use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
 
 class InstallCommand extends Command
@@ -63,7 +64,7 @@ class InstallCommand extends Command
 
     protected function createIconDirectory(): void
     {
-        $iconPath = resource_path('views/flux/icon');
+        $iconPath = resource_path(FluxFontAwesomeServiceProvider::FLUX_ICON_PATH);
 
         if (! File::isDirectory($iconPath)) {
             File::makeDirectory($iconPath, 0755, true);

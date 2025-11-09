@@ -4,6 +4,7 @@ namespace Tunr\FluxFontAwesome\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Tunr\FluxFontAwesome\FluxFontAwesomeServiceProvider;
 use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
 use Tunr\FluxFontAwesome\Services\IconWriter;
 use Tunr\FluxFontAwesome\Support\Variant;
@@ -84,7 +85,7 @@ class BuildCommand extends Command
 
     protected function cleanIcons(): void
     {
-        $outputPath = resource_path('views/flux/icon');
+        $outputPath = resource_path(FluxFontAwesomeServiceProvider::FLUX_ICON_PATH);
 
         if (File::isDirectory($outputPath)) {
             $files = File::files($outputPath);
@@ -164,7 +165,7 @@ class BuildCommand extends Command
     protected function buildIcons(array $icons, array $variants): void
     {
         $sourcePath = $this->pathResolver->resolve(config('flux-font-awesome.source_path'));
-        $outputPath = resource_path('views/flux/icon');
+        $outputPath = resource_path(FluxFontAwesomeServiceProvider::FLUX_ICON_PATH);
         $exclude = config('flux-font-awesome.build.exclude', []);
 
         $progressBar = $this->output->createProgressBar(count($icons));
