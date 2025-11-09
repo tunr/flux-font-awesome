@@ -2,8 +2,8 @@
 
 namespace Tunr\FluxFontAwesome\Tests\Unit;
 
-use PHPUnit\Framework\TestCase;
 use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
+use Tunr\FluxFontAwesome\Tests\TestCase;
 
 class FontAwesomePathResolverTest extends TestCase
 {
@@ -12,7 +12,7 @@ class FontAwesomePathResolverTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->resolver = new FontAwesomePathResolver;
+        $this->resolver = app(FontAwesomePathResolver::class);
     }
 
     /** @test */
