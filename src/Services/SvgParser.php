@@ -8,6 +8,8 @@ class SvgParser
 {
     /**
      * Parse an SVG file and extract its contents.
+     *
+     * @return array{viewBox: string, paths: array<int, array<string, string>>, attributes: array<string, string>}
      */
     public function parse(string $svgContent): array
     {
@@ -39,9 +41,9 @@ class SvgParser
             return '0 0 512 512';
         }
 
-        $viewBox = $node->getAttribute('viewbox') ?: null;
+        $viewBox = $node->getAttribute('viewbox');
 
-        if ($viewBox === null || $viewBox === '') {
+        if (! $viewBox) {
             // Fallback to common Font Awesome viewBox
             return '0 0 512 512';
         }
@@ -51,15 +53,20 @@ class SvgParser
 
     /**
      * Extract all path elements from an SVG.
+     *
+     * @return array<int, array<string, string>>
      */
     protected function extractPaths(Crawler $svg): array
     {
         $paths = [];
 
         $svg->filter('path')->each(function (Crawler $path) use (&$paths): void {
-            $pathData = [
-                'd' => $path->attr('d'),
-            ];
+            $d = $path->attr('d');
+            if ($d === null) {
+                return;
+            }
+
+            $pathData = ['d' => $d];
 
             // Preserve attributes like fill, opacity, class for duotone support
             if ($fill = $path->attr('fill')) {
@@ -86,6 +93,8 @@ class SvgParser
 
     /**
      * Extract important attributes from the SVG element.
+     *
+     * @return array<string, string>
      */
     protected function extractAttributes(Crawler $svg): array
     {
@@ -117,6 +126,8 @@ class SvgParser
 
     /**
      * Generate Blade-compatible path markup from parsed data.
+     *
+     * @param array{viewBox: string, paths: array<int, array<string, string>>, attributes: array<string, string>} $parsedData
      */
     public function generatePathMarkup(array $parsedData): string
     {
@@ -150,6 +161,8 @@ class SvgParser
 
     /**
      * Build a path element with attributes.
+     *
+     * @param array<string, string> $attributes
      */
     protected function buildPathElement(array $attributes): string
     {

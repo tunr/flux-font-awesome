@@ -37,12 +37,16 @@ class ConfigCommand extends Command
         return self::SUCCESS;
     }
 
+    /**
+     * @param array<string, mixed> $items
+     */
     protected function displaySection(string $title, array $items): void
     {
         $this->line(sprintf('<fg=yellow>%s:</>', $title));
         $this->newLine();
 
-        $maxKeyLength = max(array_map(strlen(...), array_keys($items)));
+        $keys = array_keys($items);
+        $maxKeyLength = $keys !== [] ? max(array_map(strlen(...), $keys)) : 0;
 
         foreach ($items as $key => $value) {
             $paddedKey = str_pad((string) $key, $maxKeyLength);
@@ -52,6 +56,9 @@ class ConfigCommand extends Command
         $this->newLine();
     }
 
+    /**
+     * @param array<int, string>|null $array
+     */
     protected function formatArray(?array $array): string
     {
         if (! $array) {

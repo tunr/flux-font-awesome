@@ -9,3 +9,6 @@ parameters:
     excludePaths:
         - tests
     tmpDir: build/phpstan
+    ignoreErrors:
+        # Laravel Command::$components is intentionally internal but meant to be used
+        - '#Access to internal property Illuminate\\Console\\Command::\$components#'

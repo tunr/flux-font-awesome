@@ -118,6 +118,8 @@ class Variant
 
     /**
      * Get all variants or filter by type.
+     *
+     * @return array<int, string>
      */
     public static function all(?string $type = null): array
     {

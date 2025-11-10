@@ -96,8 +96,12 @@ class BuildCommand extends Command
         }
     }
 
+    /**
+     * @return array<int, string>
+     */
     protected function getIconsToBuild(): array
     {
+        /** @var array<int, string> $requestedIcons */
         $requestedIcons = $this->argument('icons');
 
         // If specific icons requested, validate they exist
@@ -117,6 +121,9 @@ class BuildCommand extends Command
         return $this->scanAvailableIcons($sourcePath);
     }
 
+    /**
+     * @return array<int, string>
+     */
     protected function scanAvailableIcons(string $sourcePath): array
     {
         $icons = [];
@@ -143,6 +150,9 @@ class BuildCommand extends Command
         return array_keys($icons);
     }
 
+    /**
+     * @param array<int, string> $icons
+     */
     protected function buildIcons(array $icons): void
     {
         $sourcePath = $this->pathResolver->resolve(config('flux-font-awesome.source_path'));
@@ -185,6 +195,9 @@ class BuildCommand extends Command
         $this->newLine();
     }
 
+    /**
+     * @return array<string, string>
+     */
     protected function findIconVariants(string $sourcePath, string $iconName): array
     {
         $svgsPath = $sourcePath.'/svgs';

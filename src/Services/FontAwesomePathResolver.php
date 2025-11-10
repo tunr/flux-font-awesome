@@ -6,6 +6,8 @@ class FontAwesomePathResolver
 {
     /**
      * Common Font Awesome installation paths to check.
+     *
+     * @var array<int, string>
      */
     protected array $commonPaths = [
         'node_modules/@fortawesome/fontawesome-free',
@@ -70,6 +72,8 @@ class FontAwesomePathResolver
 
     /**
      * Get all detected Font Awesome installations.
+     *
+     * @return array<int, array{path: string, type: string}>
      */
     public function getAllInstallations(): array
     {
@@ -106,7 +110,11 @@ class FontAwesomePathResolver
         // Check package.json if exists
         $packageJson = $path.'/package.json';
         if (file_exists($packageJson)) {
-            $package = json_decode(file_get_contents($packageJson), true);
+            $contents = file_get_contents($packageJson);
+            if ($contents === false) {
+                return 'free';
+            }
+            $package = json_decode($contents, true);
             $name = $package['name'] ?? '';
 
             if (str_contains((string) $name, 'pro')) {
