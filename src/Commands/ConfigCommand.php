@@ -54,7 +54,7 @@ class ConfigCommand extends Command
 
     protected function formatArray(?array $array): string
     {
-        if (!$array) {
+        if (! $array) {
             return '<fg=gray>(all)</>';
         }
 
