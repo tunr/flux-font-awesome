@@ -127,5 +127,4 @@ class Variant
             default => self::ALL,
         };
     }
-
 }

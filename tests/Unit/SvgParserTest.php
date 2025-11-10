@@ -65,7 +65,6 @@ class SvgParserTest extends TestCase
         $this->assertEquals('fa-primary', $result['paths'][1]['class']);
     }
 
-
     /** @test */
     public function it_generates_path_markup(): void
     {
