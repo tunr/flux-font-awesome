@@ -32,7 +32,6 @@ class ConfigCommand extends Command
         $this->displaySection('Build Settings', [
             'Include Icons' => $this->formatArray(config('flux-font-awesome.build.include')),
             'Exclude Icons' => $this->formatArray(config('flux-font-awesome.build.exclude')),
-            'Variants' => $this->formatArray(config('flux-font-awesome.build.variants')),
         ]);
 
         return self::SUCCESS;
@@ -53,9 +52,9 @@ class ConfigCommand extends Command
         $this->newLine();
     }
 
-    protected function formatArray(array $array): string
+    protected function formatArray(?array $array): string
     {
-        if ($array === []) {
+        if ($array === null || $array === []) {
             return '<fg=gray>(all)</>';
         }
 
