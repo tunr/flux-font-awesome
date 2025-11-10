@@ -47,7 +47,7 @@ class BuildCommand extends Command
         // Determine which icons to build
         $iconsToBuild = $this->getIconsToBuild();
 
-        if (empty($iconsToBuild)) {
+        if ($iconsToBuild === []) {
             $this->components->error('No icons found to build');
 
             return self::FAILURE;
@@ -57,7 +57,7 @@ class BuildCommand extends Command
         $this->buildIcons($iconsToBuild);
 
         $this->newLine();
-        $this->components->info("Built {$this->iconCount} icons with {$this->variantCount} total variants");
+        $this->components->info(sprintf('Built %d icons with %d total variants', $this->iconCount, $this->variantCount));
 
         return self::SUCCESS;
     }
@@ -91,7 +91,7 @@ class BuildCommand extends Command
 
             if ($count > 0) {
                 File::cleanDirectory($outputPath);
-                $this->components->task("Cleaned {$count} existing icons");
+                $this->components->task(sprintf('Cleaned %d existing icons', $count));
             }
         }
     }
@@ -162,7 +162,7 @@ class BuildCommand extends Command
             // Find all available variants for this icon
             $variantSvgPaths = $this->findIconVariants($sourcePath, $iconName);
 
-            if (empty($variantSvgPaths)) {
+            if ($variantSvgPaths === []) {
                 $progressBar->advance();
                 continue;
             }
@@ -174,7 +174,7 @@ class BuildCommand extends Command
             } catch (\Exception $e) {
                 if ($this->output->isVerbose()) {
                     $this->newLine();
-                    $this->components->error("Failed to build {$iconName}: {$e->getMessage()}");
+                    $this->components->error(sprintf('Failed to build %s: %s', $iconName, $e->getMessage()));
                 }
             }
 

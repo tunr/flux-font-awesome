@@ -40,14 +40,14 @@ class ConfigCommand extends Command
 
     protected function displaySection(string $title, array $items): void
     {
-        $this->line("<fg=yellow>{$title}:</>");
+        $this->line(sprintf('<fg=yellow>%s:</>', $title));
         $this->newLine();
 
-        $maxKeyLength = max(array_map('strlen', array_keys($items)));
+        $maxKeyLength = max(array_map(strlen(...), array_keys($items)));
 
         foreach ($items as $key => $value) {
-            $paddedKey = str_pad($key, $maxKeyLength);
-            $this->line("  <fg=gray>{$paddedKey}:</> <fg=cyan>{$value}</>");
+            $paddedKey = str_pad((string) $key, $maxKeyLength);
+            $this->line(sprintf('  <fg=gray>%s:</> <fg=cyan>%s</>', $paddedKey, $value));
         }
 
         $this->newLine();
@@ -55,7 +55,7 @@ class ConfigCommand extends Command
 
     protected function formatArray(array $array): string
     {
-        if (empty($array)) {
+        if ($array === []) {
             return '<fg=gray>(all)</>';
         }
 

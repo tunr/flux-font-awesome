@@ -109,7 +109,7 @@ class FontAwesomePathResolver
             $package = json_decode(file_get_contents($packageJson), true);
             $name = $package['name'] ?? '';
 
-            if (str_contains($name, 'pro')) {
+            if (str_contains((string) $name, 'pro')) {
                 return 'pro';
             }
         }

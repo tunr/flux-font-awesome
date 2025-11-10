@@ -47,8 +47,8 @@ class IconWriter
             ];
         }
 
-        if (empty($variants)) {
-            throw new \RuntimeException("No valid variants found for icon: {$iconName}");
+        if ($variants === []) {
+            throw new \RuntimeException('No valid variants found for icon: '.$iconName);
         }
 
         return $this->generateBladeTemplate($iconName, $variants);
@@ -62,7 +62,7 @@ class IconWriter
         $stubPath = __DIR__.'/../../stubs/icon.blade.stub';
 
         if (! $this->files->exists($stubPath)) {
-            throw new \RuntimeException("Icon template stub not found at: {$stubPath}");
+            throw new \RuntimeException('Icon template stub not found at: '.$stubPath);
         }
 
         $template = $this->files->get($stubPath);
@@ -115,13 +115,13 @@ CASE;
         $defaultStyle = config('flux-font-awesome.default_variant', 'solid');
 
         if (isset($variants[$defaultStyle])) {
-            return "            {$variants[$defaultStyle]['paths']}";
+            return '            '.$variants[$defaultStyle]['paths'];
         }
 
         // Fallback to first available variant
         $firstVariant = reset($variants);
 
-        return "            {$firstVariant['paths']}";
+        return '            '.$firstVariant['paths'];
     }
 
     /**
@@ -176,10 +176,10 @@ CASE;
         $files = $this->files->files($outputPath);
 
         return collect($files)
-            ->filter(fn ($file) => $file->getExtension() === 'php')
+            ->filter(fn ($file): bool => $file->getExtension() === 'php')
             ->map(fn ($file) => $file->getBasename('.blade.php'))
-            ->filter(fn ($name) => str_starts_with($name, 'fa-'))
-            ->map(fn ($name) => str_replace('fa-', '', $name))
+            ->filter(fn ($name): bool => str_starts_with((string) $name, 'fa-'))
+            ->map(fn ($name): string => str_replace('fa-', '', $name))
             ->values()
             ->all();
     }

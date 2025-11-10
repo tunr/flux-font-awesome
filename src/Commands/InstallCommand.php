@@ -68,7 +68,7 @@ class InstallCommand extends Command
 
         if (! File::isDirectory($iconPath)) {
             File::makeDirectory($iconPath, 0755, true);
-            $this->components->task('Created icon directory', fn () => true);
+            $this->components->task('Created icon directory', fn (): true => true);
         } else {
             $this->components->task('Icon directory exists');
         }

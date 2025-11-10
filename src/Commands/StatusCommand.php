@@ -48,21 +48,21 @@ class StatusCommand extends Command
 
         if ($this->pathResolver->isInstalled($configPath)) {
             $sourcePath = $this->pathResolver->resolve($configPath);
-            $this->components->task("Source path found: {$sourcePath}");
+            $this->components->task('Source path found: '.$sourcePath);
 
             // Check for package.json to determine version
             $packageJsonPath = $sourcePath.'/package.json';
             if (File::exists($packageJsonPath)) {
                 $packageJson = json_decode(File::get($packageJsonPath), true);
                 $version = $packageJson['version'] ?? 'unknown';
-                $this->line("  <fg=gray>Version:</> <fg=cyan>{$version}</>");
+                $this->line(sprintf('  <fg=gray>Version:</> <fg=cyan>%s</>', $version));
             }
 
             // Count available SVGs
             $svgsPath = $sourcePath.'/svgs';
             if (File::isDirectory($svgsPath)) {
                 $iconCount = $this->countAvailableIcons($svgsPath);
-                $this->line("  <fg=gray>Available icons:</> <fg=cyan>{$iconCount}</>");
+                $this->line(sprintf('  <fg=gray>Available icons:</> <fg=cyan>%d</>', $iconCount));
             }
         } else {
             $this->components->error('Font Awesome not found');
@@ -95,14 +95,14 @@ class StatusCommand extends Command
             $this->components->warn('No icons built yet');
             $this->line('  Run: <fg=cyan>php artisan flux-fa:build</>');
         } else {
-            $this->components->task("Built icons: {$count}");
-            $this->line("  <fg=gray>Output path:</> <fg=cyan>{$outputPath}</>");
+            $this->components->task('Built icons: '.$count);
+            $this->line(sprintf('  <fg=gray>Output path:</> <fg=cyan>%s</>', $outputPath));
 
             if ($this->output->isVerbose() && $count <= 20) {
                 $this->newLine();
                 $this->line('  <fg=gray>Icons:</>');
                 foreach ($builtIcons as $icon) {
-                    $this->line("    - {$icon}");
+                    $this->line('    - '.$icon);
                 }
             }
         }
@@ -134,13 +134,13 @@ class StatusCommand extends Command
             }
         }
 
-        if (empty($availableVariants)) {
+        if ($availableVariants === []) {
             $this->components->warn('No variants found');
         } else {
             foreach ($availableVariants as $variant => $count) {
                 $isFree = Variant::isFree($variant);
                 $badge = $isFree ? '<fg=green>FREE</>' : '<fg=yellow>PRO</>';
-                $this->line("  {$badge} <fg=cyan>{$variant}</>: {$count} icons");
+                $this->line(sprintf('  %s <fg=cyan>%s</>: %d icons', $badge, $variant, $count));
             }
         }
 

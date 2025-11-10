@@ -56,7 +56,7 @@ class SvgParser
     {
         $paths = [];
 
-        $svg->filter('path')->each(function (Crawler $path) use (&$paths) {
+        $svg->filter('path')->each(function (Crawler $path) use (&$paths): void {
             $pathData = [
                 'd' => $path->attr('d'),
             ];
@@ -154,7 +154,7 @@ class SvgParser
     protected function buildPathElement(array $attributes): string
     {
         $attributeString = collect($attributes)
-            ->map(fn ($value, $key) => sprintf('%s="%s"', $key, htmlspecialchars($value, ENT_QUOTES)))
+            ->map(fn ($value, string $key): string => sprintf('%s="%s"', $key, htmlspecialchars((string) $value, ENT_QUOTES)))
             ->implode(' ');
 
         return sprintf('<path %s />', $attributeString);
