@@ -4,7 +4,6 @@ namespace Tunr\FluxFontAwesome;
 
 use Illuminate\Support\ServiceProvider;
 use Tunr\FluxFontAwesome\Commands\BuildCommand;
-use Tunr\FluxFontAwesome\Commands\ConfigCommand;
 use Tunr\FluxFontAwesome\Commands\InstallCommand;
 use Tunr\FluxFontAwesome\Commands\ListCommand;
 use Tunr\FluxFontAwesome\Commands\StatusCommand;
@@ -53,7 +52,6 @@ class FluxFontAwesomeServiceProvider extends ServiceProvider
             $this->commands([
                 InstallCommand::class,
                 BuildCommand::class,
-                ConfigCommand::class,
                 ListCommand::class,
                 StatusCommand::class,
             ]);
