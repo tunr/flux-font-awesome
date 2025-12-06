@@ -11,11 +11,8 @@ use Tunr\FluxFontAwesome\Support\Variant;
 class BuildCommand extends Command
 {
     protected $signature = 'flux-fa:build
-                            {icons?* : Specific icons to build (e.g., user github)}
-                            {--variant=* : Specific variants to build (e.g., solid regular)}
-                            {--from-existing : Rebuild only icons that already exist in the output directory}
-                            {--refresh : Rebuild all icons from scratch}
-                            {--clean : Remove all existing icons before building}';
+                            {icons* : Icons to build (e.g., user github)}
+                            {--variant=* : Specific variants to build (e.g., solid regular)}';
 
     protected $description = 'Build Flux Font Awesome icon components';
 
@@ -35,27 +32,13 @@ class BuildCommand extends Command
         $this->components->info('Building Font Awesome icons...');
         $this->newLine();
 
-        // Validate paths
         if (! $this->validatePaths()) {
             return self::FAILURE;
         }
 
-        // Clean if requested
-        if ($this->option('clean')) {
-            $this->cleanIcons();
-        }
-
-        // Determine which icons and variants to build
-        $iconsToBuild = $this->getIconsToBuild();
+        $iconsToBuild = $this->argument('icons');
         $variantsToBuild = $this->getVariantsToBuild();
 
-        if (empty($iconsToBuild)) {
-            $this->components->error('No icons found to build');
-
-            return self::FAILURE;
-        }
-
-        // Build icons
         $this->buildIcons($iconsToBuild, $variantsToBuild);
 
         $this->newLine();
@@ -83,73 +66,6 @@ class BuildCommand extends Command
         return true;
     }
 
-    protected function cleanIcons(): void
-    {
-        $outputPath = config('flux-font-awesome.output_path');
-
-        if (File::isDirectory($outputPath)) {
-            $files = File::files($outputPath);
-            $count = count($files);
-
-            if ($count > 0) {
-                File::cleanDirectory($outputPath);
-                $this->components->task("Cleaned {$count} existing icons");
-            }
-        }
-    }
-
-    protected function getIconsToBuild(): array
-    {
-        $requestedIcons = $this->argument('icons');
-
-        // If specific icons requested via command line
-        if (! empty($requestedIcons)) {
-            return $requestedIcons;
-        }
-
-        // If --from-existing flag, read icons from existing output files
-        if ($this->option('from-existing')) {
-            $existingIcons = $this->writer->getIconFiles(config('flux-font-awesome.output_path'));
-
-            if (empty($existingIcons)) {
-                $this->components->warn('No existing icons found in output directory');
-            }
-
-            return $existingIcons;
-        }
-
-        // Otherwise, scan for all available icons in Font Awesome source
-        $sourcePath = $this->pathResolver->resolve(config('flux-font-awesome.source_path'));
-
-        return $this->scanAvailableIcons($sourcePath);
-    }
-
-    protected function scanAvailableIcons(string $sourcePath): array
-    {
-        $icons = [];
-        $svgsPath = $sourcePath.'/svgs';
-
-        // Scan each variant directory
-        foreach (Variant::ALL as $variant) {
-            $variantDir = $svgsPath.'/'.Variant::toDirectory($variant);
-
-            if (! File::isDirectory($variantDir)) {
-                continue;
-            }
-
-            $files = File::files($variantDir);
-
-            foreach ($files as $file) {
-                if ($file->getExtension() === 'svg') {
-                    $iconName = $file->getFilenameWithoutExtension();
-                    $icons[$iconName] = true;
-                }
-            }
-        }
-
-        return array_keys($icons);
-    }
-
     protected function getVariantsToBuild(): array
     {
         $requestedVariants = $this->option('variant');
@@ -163,7 +79,6 @@ class BuildCommand extends Command
             return $configVariants;
         }
 
-        // Build all available variants
         return Variant::ALL;
     }
 
@@ -176,11 +91,15 @@ class BuildCommand extends Command
         $progressBar->start();
 
         foreach ($icons as $iconName) {
-            // Find all available variants for this icon
             $variantSvgPaths = $this->findIconVariants($sourcePath, $iconName, $variants);
 
             if (empty($variantSvgPaths)) {
+                if ($this->output->isVerbose()) {
+                    $this->newLine();
+                    $this->components->warn("Icon '{$iconName}' not found in Font Awesome source");
+                }
                 $progressBar->advance();
+
                 continue;
             }
 
