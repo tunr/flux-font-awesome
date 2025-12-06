@@ -74,7 +74,7 @@ class StatusCommand extends Command
         // Show available variants
         $variants = $this->getAvailableVariants($sourcePath);
         if (! empty($variants)) {
-            $this->line("  <fg=gray>Variants:</> ".implode(', ', $variants));
+            $this->line('  <fg=gray>Variants:</> '.implode(', ', $variants));
         }
     }
 
@@ -83,7 +83,7 @@ class StatusCommand extends Command
         $outputPath = config('flux-font-awesome.output_path');
 
         if (! File::isDirectory($outputPath)) {
-            $this->line("<fg=yellow>○</> Output: <fg=gray>{$outputPath}</> <fg=yellow>(not created)</>",);
+            $this->line("<fg=yellow>○</> Output: <fg=gray>{$outputPath}</> <fg=yellow>(not created)</>");
 
             return;
         }
