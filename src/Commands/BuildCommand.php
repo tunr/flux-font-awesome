@@ -13,6 +13,7 @@ class BuildCommand extends Command
     protected $signature = 'flux-fa:build
                             {icons?* : Specific icons to build (e.g., user github)}
                             {--variant=* : Specific variants to build (e.g., solid regular)}
+                            {--from-existing : Rebuild only icons that already exist in the output directory}
                             {--refresh : Rebuild all icons from scratch}
                             {--clean : Remove all existing icons before building}';
 
@@ -101,18 +102,23 @@ class BuildCommand extends Command
     {
         $requestedIcons = $this->argument('icons');
 
-        // If specific icons requested, validate they exist
+        // If specific icons requested via command line
         if (! empty($requestedIcons)) {
             return $requestedIcons;
         }
 
-        // Get icons from config include list
-        $configInclude = config('flux-font-awesome.build.include', []);
-        if (! empty($configInclude)) {
-            return $configInclude;
+        // If --from-existing flag, read icons from existing output files
+        if ($this->option('from-existing')) {
+            $existingIcons = $this->writer->getIconFiles(config('flux-font-awesome.output_path'));
+
+            if (empty($existingIcons)) {
+                $this->components->warn('No existing icons found in output directory');
+            }
+
+            return $existingIcons;
         }
 
-        // Otherwise, scan for all available icons
+        // Otherwise, scan for all available icons in Font Awesome source
         $sourcePath = $this->pathResolver->resolve(config('flux-font-awesome.source_path'));
 
         return $this->scanAvailableIcons($sourcePath);
@@ -165,18 +171,11 @@ class BuildCommand extends Command
     {
         $sourcePath = $this->pathResolver->resolve(config('flux-font-awesome.source_path'));
         $outputPath = config('flux-font-awesome.output_path');
-        $exclude = config('flux-font-awesome.build.exclude', []);
 
         $progressBar = $this->output->createProgressBar(count($icons));
         $progressBar->start();
 
         foreach ($icons as $iconName) {
-            // Skip excluded icons
-            if (in_array($iconName, $exclude)) {
-                $progressBar->advance();
-                continue;
-            }
-
             // Find all available variants for this icon
             $variantSvgPaths = $this->findIconVariants($sourcePath, $iconName, $variants);
 

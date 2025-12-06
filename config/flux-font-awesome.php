@@ -145,22 +145,14 @@ return [
     | Build Settings
     |--------------------------------------------------------------------------
     |
-    | Configuration for the fa:build command.
+    | Configuration for the flux-fa:build command.
     |
     */
 
     'build' => [
-        // Specific icons to include (empty = all icons)
-        'include' => [],
-
-        // Icons to exclude
-        'exclude' => [],
-
         // Variants to build (empty = all available variants)
+        // Available: solid, regular, light, thin, duotone, brands, sharp-solid, etc.
         'variants' => [],
-
-        // Whether to preserve existing icon files when building
-        'preserve_existing' => false,
     ],
 
 ];
