@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tunr\FluxFontAwesome\Services;
 
 class FontAwesomePathResolver
@@ -78,7 +80,7 @@ class FontAwesomePathResolver
     /**
      * Get all detected Font Awesome installations.
      *
-     * @return array<int, array{path: string, type: string}>
+     * @return array<array{path: string, type: string}>
      */
     public function getAllInstallations(): array
     {

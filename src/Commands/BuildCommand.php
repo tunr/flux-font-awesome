@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tunr\FluxFontAwesome\Commands;
 
 use Illuminate\Console\Command;
@@ -19,6 +21,9 @@ class BuildCommand extends Command
     protected int $iconCount = 0;
 
     protected int $variantCount = 0;
+
+    /** @var array<string, string> */
+    protected array $failedIcons = [];
 
     public function __construct(
         protected IconWriter $writer,
@@ -44,6 +49,16 @@ class BuildCommand extends Command
 
         $this->newLine();
         $this->components->info("Built {$this->iconCount} icons with {$this->variantCount} total variants");
+
+        if ($this->failedIcons !== []) {
+            $this->newLine();
+            $this->components->warn(count($this->failedIcons).' icon(s) failed to build:');
+            foreach ($this->failedIcons as $iconName => $error) {
+                $this->line("  <fg=red>✗</> {$iconName}: {$error}");
+            }
+
+            return self::FAILURE;
+        }
 
         return self::SUCCESS;
     }
@@ -117,11 +132,8 @@ class BuildCommand extends Command
                 $this->writer->write($iconName, $variantSvgPaths, $outputPath);
                 $this->iconCount++;
                 $this->variantCount += count($variantSvgPaths);
-            } catch (\Exception $e) {
-                if ($this->output->isVerbose()) {
-                    $this->newLine();
-                    $this->components->error("Failed to build {$iconName}: {$e->getMessage()}");
-                }
+            } catch (\RuntimeException $e) {
+                $this->failedIcons[$iconName] = $e->getMessage();
             }
 
             $progressBar->advance();

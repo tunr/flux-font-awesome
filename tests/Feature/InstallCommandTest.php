@@ -29,7 +29,9 @@ class InstallCommandTest extends TestCase
 
         $this->assertTrue(File::isDirectory($outputPath));
 
-        // Clean up
+        // Clean up but preserve directory structure
         File::deleteDirectory($outputPath);
+        File::ensureDirectoryExists($outputPath);
+        File::put($outputPath.'/.gitkeep', '');
     }
 }

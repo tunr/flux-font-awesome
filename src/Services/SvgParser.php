@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tunr\FluxFontAwesome\Services;
 
 use Symfony\Component\DomCrawler\Crawler;
@@ -9,7 +11,7 @@ class SvgParser
     /**
      * Parse an SVG file and extract its contents.
      *
-     * @return array{viewBox: string, paths: array<int, array<string, string>>, attributes: array<string, string>}
+     * @return array{viewBox: string, paths: array<array{d: string|null, fill?: string, opacity?: string, fill-opacity?: string, class?: string}>, attributes: array<string, string>}
      */
     public function parse(string $svgContent): array
     {
@@ -48,26 +50,48 @@ class SvgParser
             return '0 0 512 512';
         }
 
+        // Validate viewBox format
+        if (! $this->isValidViewBox($viewBox)) {
+            return '0 0 512 512';
+        }
+
         return $viewBox;
+    }
+
+    /**
+     * Validate that a viewBox string has the correct format.
+     *
+     * Expected format: "minX minY width height" with numeric values
+     */
+    protected function isValidViewBox(string $viewBox): bool
+    {
+        $parts = preg_split('/[\s,]+/', trim($viewBox));
+
+        if ($parts === false || count($parts) !== 4) {
+            return false;
+        }
+
+        foreach ($parts as $part) {
+            if (! is_numeric($part)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
      * Extract all path elements from an SVG.
      *
-     * @return array<int, array<string, string>>
+     * @return array<array{d: string|null, fill?: string, opacity?: string, fill-opacity?: string, class?: string}>
      */
     protected function extractPaths(Crawler $svg): array
     {
         $paths = [];
 
         $svg->filter('path')->each(function (Crawler $path) use (&$paths): void {
-            $d = $path->attr('d');
-            if ($d === null) {
-                return;
-            }
-
             $pathData = [
-                'd' => $d,
+                'd' => $path->attr('d'),
             ];
 
             // Preserve attributes like fill, opacity, class for duotone support
@@ -129,7 +153,7 @@ class SvgParser
     /**
      * Generate Blade-compatible path markup from parsed data.
      *
-     * @param array{viewBox: string, paths: array<int, array<string, string>>, attributes: array<string, string>} $parsedData
+     * @param array{viewBox: string, paths: array<array{d: string|null, fill?: string, opacity?: string, fill-opacity?: string, class?: string}>, attributes: array<string, string>} $parsedData
      */
     public function generatePathMarkup(array $parsedData): string
     {
@@ -164,12 +188,12 @@ class SvgParser
     /**
      * Build a path element with attributes.
      *
-     * @param array<string, string> $attributes
+     * @param array<string, string|null> $attributes
      */
     protected function buildPathElement(array $attributes): string
     {
         $attributeString = collect($attributes)
-            ->map(fn ($value, string $key): string => sprintf('%s="%s"', $key, htmlspecialchars($value, ENT_QUOTES)))
+            ->map(fn ($value, string $key): string => sprintf('%s="%s"', $key, htmlspecialchars((string) $value, ENT_QUOTES)))
             ->implode(' ');
 
         return sprintf('<path %s />', $attributeString);
@@ -178,7 +202,7 @@ class SvgParser
     /**
      * Check if SVG contains duotone paths (typically 2 paths with opacity).
      *
-     * @param array{viewBox: string, paths: array<int, array<string, string>>, attributes: array<string, string>} $parsedData
+     * @param array{viewBox: string, paths: array<array{d: string|null, fill?: string, opacity?: string, fill-opacity?: string, class?: string}>, attributes: array<string, string>} $parsedData
      */
     public function isDuotone(array $parsedData): bool
     {

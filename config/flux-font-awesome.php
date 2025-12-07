@@ -47,19 +47,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Fallback Strategy
-    |--------------------------------------------------------------------------
-    |
-    | How to handle missing icon variants:
-    | - 'fallback': Fall back to default variant if requested variant doesn't exist
-    | - 'error': Show an error message (respects app.debug)
-    |
-    */
-
-    'fallback_strategy' => 'fallback',
-
-    /*
-    |--------------------------------------------------------------------------
     | Size Mappings
     |--------------------------------------------------------------------------
     |
@@ -104,41 +91,6 @@ return [
     */
 
     'icon_scale' => 0.875,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Animation CSS
-    |--------------------------------------------------------------------------
-    |
-    | CSS for icon animations (spin, pulse). This is injected once per request
-    | when an animated icon is rendered.
-    |
-    */
-
-    'animations' => [
-        'spin' => [
-            'class' => 'fa-spin',
-            'css' => '@keyframes fa-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } } .fa-spin { animation: fa-spin 2s linear infinite; }',
-        ],
-        'pulse' => [
-            'class' => 'fa-pulse',
-            'css' => '@keyframes fa-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } } .fa-pulse { animation: fa-pulse 2s ease-in-out infinite; }',
-        ],
-    ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | Duotone Settings
-    |--------------------------------------------------------------------------
-    |
-    | Configuration for duotone icon rendering.
-    |
-    */
-
-    'duotone' => [
-        'primary_opacity' => 1.0,
-        'secondary_opacity' => 0.4,
-    ],
 
     /*
     |--------------------------------------------------------------------------

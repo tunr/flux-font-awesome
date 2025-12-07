@@ -29,12 +29,18 @@ class IconWriterTest extends TestCase
 
     protected function tearDown(): void
     {
-        // Clean up any created files
+        // Clean up any created files but preserve .gitkeep
         $files = glob($this->outputPath.'/*.php');
         if ($files) {
             foreach ($files as $file) {
                 unlink($file);
             }
+        }
+
+        // Restore .gitkeep if it was deleted
+        $gitkeep = $this->outputPath.'/.gitkeep';
+        if (! file_exists($gitkeep)) {
+            touch($gitkeep);
         }
 
         parent::tearDown();
