@@ -23,9 +23,9 @@ class ListCommand extends Command
         $outputPath = config('flux-font-awesome.output_path');
         $icons = $this->writer->getIconFiles($outputPath);
 
-        if (empty($icons)) {
+        if ($icons === []) {
             if ($this->option('json')) {
-                $this->line(json_encode(['icons' => [], 'count' => 0], JSON_PRETTY_PRINT));
+                $this->line((string) json_encode(['icons' => [], 'count' => 0], JSON_PRETTY_PRINT));
             } else {
                 $this->components->warn('No icons found');
                 $this->newLine();
@@ -38,7 +38,7 @@ class ListCommand extends Command
         sort($icons);
 
         if ($this->option('json')) {
-            $this->line(json_encode([
+            $this->line((string) json_encode([
                 'icons' => $icons,
                 'count' => count($icons),
             ], JSON_PRETTY_PRINT));

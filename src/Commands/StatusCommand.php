@@ -14,6 +14,7 @@ class StatusCommand extends Command
 
     protected $description = 'Check Flux Font Awesome installation status';
 
+    /** @var array<string> */
     protected array $issues = [];
 
     public function __construct(
@@ -33,7 +34,7 @@ class StatusCommand extends Command
 
         $this->newLine();
 
-        if (! empty($this->issues)) {
+        if ($this->issues !== []) {
             $this->components->error(count($this->issues).' issue(s) found');
             $this->newLine();
 
@@ -73,7 +74,7 @@ class StatusCommand extends Command
 
         // Show available variants
         $variants = $this->getAvailableVariants($sourcePath);
-        if (! empty($variants)) {
+        if ($variants !== []) {
             $this->line('  <fg=gray>Variants:</> '.implode(', ', $variants));
         }
     }
@@ -141,6 +142,9 @@ class StatusCommand extends Command
         return $packageJson['version'] ?? null;
     }
 
+    /**
+     * @return array<string>
+     */
     protected function getAvailableVariants(string $sourcePath): array
     {
         $svgsPath = $sourcePath.'/svgs';

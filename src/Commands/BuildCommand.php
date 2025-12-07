@@ -36,6 +36,7 @@ class BuildCommand extends Command
             return self::FAILURE;
         }
 
+        /** @var array<string> $iconsToBuild */
         $iconsToBuild = $this->argument('icons');
         $variantsToBuild = $this->getVariantsToBuild();
 
@@ -66,22 +67,31 @@ class BuildCommand extends Command
         return true;
     }
 
+    /**
+     * @return array<string>
+     */
     protected function getVariantsToBuild(): array
     {
+        /** @var array<string> $requestedVariants */
         $requestedVariants = $this->option('variant');
 
-        if (! empty($requestedVariants)) {
-            return array_map(fn ($v) => Variant::normalize($v), $requestedVariants);
+        if ($requestedVariants !== []) {
+            return array_map(Variant::normalize(...), $requestedVariants);
         }
 
+        /** @var array<string> $configVariants */
         $configVariants = config('flux-font-awesome.build.variants', []);
-        if (! empty($configVariants)) {
+        if ($configVariants !== []) {
             return $configVariants;
         }
 
         return Variant::ALL;
     }
 
+    /**
+     * @param array<string> $icons
+     * @param array<string> $variants
+     */
     protected function buildIcons(array $icons, array $variants): void
     {
         $sourcePath = $this->pathResolver->resolve(config('flux-font-awesome.source_path'));
@@ -93,7 +103,7 @@ class BuildCommand extends Command
         foreach ($icons as $iconName) {
             $variantSvgPaths = $this->findIconVariants($sourcePath, $iconName, $variants);
 
-            if (empty($variantSvgPaths)) {
+            if ($variantSvgPaths === []) {
                 if ($this->output->isVerbose()) {
                     $this->newLine();
                     $this->components->warn("Icon '{$iconName}' not found in Font Awesome source");
@@ -121,6 +131,11 @@ class BuildCommand extends Command
         $this->newLine();
     }
 
+    /**
+     * @param array<string> $variants
+     *
+     * @return array<string, string>
+     */
     protected function findIconVariants(string $sourcePath, string $iconName, array $variants): array
     {
         $svgsPath = $sourcePath.'/svgs';
