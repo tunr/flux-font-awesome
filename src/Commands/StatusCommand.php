@@ -12,7 +12,9 @@ class StatusCommand extends Command
 {
     protected $signature = 'flux-fa:status';
 
-    protected $description = 'Show Flux Font Awesome icon build status';
+    protected $description = 'Check Flux Font Awesome installation status';
+
+    protected array $issues = [];
 
     public function __construct(
         protected IconWriter $writer,
@@ -23,149 +25,134 @@ class StatusCommand extends Command
 
     public function handle(): int
     {
-        $this->components->info('Flux Font Awesome Status');
         $this->newLine();
 
-        // Check Font Awesome installation
-        $this->checkFontAwesomeInstallation();
-
-        // Check built icons
+        $this->checkFontAwesome();
+        $this->checkOutputDirectory();
         $this->checkBuiltIcons();
 
-        // Check available variants
-        $this->checkAvailableVariants();
+        $this->newLine();
+
+        if (! empty($this->issues)) {
+            $this->components->error(count($this->issues).' issue(s) found');
+            $this->newLine();
+
+            foreach ($this->issues as $issue) {
+                $this->line("  <fg=red>•</> {$issue}");
+            }
+
+            $this->newLine();
+
+            return self::FAILURE;
+        }
+
+        $this->components->info('No issues found');
 
         return self::SUCCESS;
     }
 
-    protected function checkFontAwesomeInstallation(): void
+    protected function checkFontAwesome(): void
     {
         $configPath = config('flux-font-awesome.source_path');
 
-        $this->line('<fg=yellow>Font Awesome Installation:</>');
-        $this->newLine();
+        if (! $this->pathResolver->isInstalled($configPath)) {
+            $this->line('<fg=red>✗</> Font Awesome: <fg=red>Not installed</>');
+            $this->issues[] = 'Font Awesome not found. Run: npm install @fortawesome/fontawesome-free';
 
-        if ($this->pathResolver->isInstalled($configPath)) {
-            $sourcePath = $this->pathResolver->resolve($configPath);
-            $this->components->task("Source path found: {$sourcePath}");
-
-            // Check for package.json to determine version
-            $packageJsonPath = $sourcePath.'/package.json';
-            if (File::exists($packageJsonPath)) {
-                $packageJson = json_decode(File::get($packageJsonPath), true);
-                $version = $packageJson['version'] ?? 'unknown';
-                $this->line("  <fg=gray>Version:</> <fg=cyan>{$version}</>");
-            }
-
-            // Count available SVGs
-            $svgsPath = $sourcePath.'/svgs';
-            if (File::isDirectory($svgsPath)) {
-                $iconCount = $this->countAvailableIcons($svgsPath);
-                $this->line("  <fg=gray>Available icons:</> <fg=cyan>{$iconCount}</>");
-            }
-        } else {
-            $this->components->error('Font Awesome not found');
-            $this->line('');
-            $this->line('  Run: <fg=cyan>npm install @fortawesome/fontawesome-free</>');
+            return;
         }
 
-        $this->newLine();
+        $sourcePath = $this->pathResolver->resolve($configPath);
+        $edition = $this->detectEdition($sourcePath);
+        $version = $this->detectVersion($sourcePath);
+
+        $editionLabel = $edition === 'pro' ? '<fg=yellow>Pro</>' : '<fg=green>Free</>';
+        $versionLabel = $version ? " <fg=gray>({$version})</>" : '';
+
+        $this->line("<fg=green>✓</> Font Awesome: {$editionLabel}{$versionLabel}");
+
+        // Show available variants
+        $variants = $this->getAvailableVariants($sourcePath);
+        if (! empty($variants)) {
+            $this->line('  <fg=gray>Variants:</> '.implode(', ', $variants));
+        }
+    }
+
+    protected function checkOutputDirectory(): void
+    {
+        $outputPath = config('flux-font-awesome.output_path');
+
+        if (! File::isDirectory($outputPath)) {
+            $this->line("<fg=yellow>○</> Output: <fg=gray>{$outputPath}</> <fg=yellow>(not created)</>");
+
+            return;
+        }
+
+        if (! is_writable($outputPath)) {
+            $this->line("<fg=red>✗</> Output: <fg=gray>{$outputPath}</> <fg=red>(not writable)</>");
+            $this->issues[] = "Output directory is not writable: {$outputPath}";
+
+            return;
+        }
+
+        $this->line("<fg=green>✓</> Output: <fg=gray>{$outputPath}</>");
     }
 
     protected function checkBuiltIcons(): void
     {
         $outputPath = config('flux-font-awesome.output_path');
-
-        $this->line('<fg=yellow>Built Icons:</>');
-        $this->newLine();
-
-        if (! File::isDirectory($outputPath)) {
-            $this->components->warn('No icons built yet');
-            $this->line('  Run: <fg=cyan>php artisan flux-fa:build</>');
-            $this->newLine();
-
-            return;
-        }
-
-        $builtIcons = $this->writer->getIconFiles($outputPath);
-        $count = count($builtIcons);
+        $icons = $this->writer->getIconFiles($outputPath);
+        $count = count($icons);
 
         if ($count === 0) {
-            $this->components->warn('No icons built yet');
-            $this->line('  Run: <fg=cyan>php artisan flux-fa:build</>');
-        } else {
-            $this->components->task("Built icons: {$count}");
-            $this->line("  <fg=gray>Output path:</> <fg=cyan>{$outputPath}</>");
+            $this->line('<fg=yellow>○</> Icons: <fg=yellow>None built</>');
 
-            if ($this->output->isVerbose() && $count <= 20) {
-                $this->newLine();
-                $this->line('  <fg=gray>Icons:</>');
-                foreach ($builtIcons as $icon) {
-                    $this->line("    - {$icon}");
-                }
-            }
-        }
-
-        $this->newLine();
-    }
-
-    protected function checkAvailableVariants(): void
-    {
-        $configPath = config('flux-font-awesome.source_path');
-
-        if (! $this->pathResolver->isInstalled($configPath)) {
             return;
         }
 
-        $svgsPath = $this->pathResolver->getSvgsPath($configPath);
-
-        $this->line('<fg=yellow>Available Variants:</>');
-        $this->newLine();
-
-        $availableVariants = [];
-
-        foreach (Variant::ALL as $variant) {
-            $variantDir = $svgsPath.'/'.Variant::toDirectory($variant);
-
-            if (File::isDirectory($variantDir)) {
-                $count = count(File::files($variantDir));
-                $availableVariants[$variant] = $count;
-            }
-        }
-
-        if (empty($availableVariants)) {
-            $this->components->warn('No variants found');
-        } else {
-            foreach ($availableVariants as $variant => $count) {
-                $isFree = Variant::isFree($variant);
-                $badge = $isFree ? '<fg=green>FREE</>' : '<fg=yellow>PRO</>';
-                $this->line("  {$badge} <fg=cyan>{$variant}</>: {$count} icons");
-            }
-        }
-
-        $this->newLine();
+        $this->line("<fg=green>✓</> Icons: <fg=cyan>{$count}</> built");
     }
 
-    protected function countAvailableIcons(string $svgsPath): int
+    protected function detectEdition(string $sourcePath): string
     {
-        $icons = [];
+        // Check for Pro-only variant directories
+        $svgsPath = $sourcePath.'/svgs';
 
-        foreach (Variant::ALL as $variant) {
+        foreach (Variant::PRO as $variant) {
             $variantDir = $svgsPath.'/'.Variant::toDirectory($variant);
-
-            if (! File::isDirectory($variantDir)) {
-                continue;
-            }
-
-            $files = File::files($variantDir);
-
-            foreach ($files as $file) {
-                if ($file->getExtension() === 'svg') {
-                    $icons[$file->getFilenameWithoutExtension()] = true;
-                }
+            if (File::isDirectory($variantDir)) {
+                return 'pro';
             }
         }
 
-        return count($icons);
+        return 'free';
+    }
+
+    protected function detectVersion(string $sourcePath): ?string
+    {
+        $packageJsonPath = $sourcePath.'/package.json';
+
+        if (! File::exists($packageJsonPath)) {
+            return null;
+        }
+
+        $packageJson = json_decode(File::get($packageJsonPath), true);
+
+        return $packageJson['version'] ?? null;
+    }
+
+    protected function getAvailableVariants(string $sourcePath): array
+    {
+        $svgsPath = $sourcePath.'/svgs';
+        $available = [];
+
+        foreach (Variant::ALL as $variant) {
+            $variantDir = $svgsPath.'/'.Variant::toDirectory($variant);
+            if (File::isDirectory($variantDir)) {
+                $available[] = $variant;
+            }
+        }
+
+        return $available;
     }
 }

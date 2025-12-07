@@ -65,6 +65,11 @@ class FontAwesomePathResolver
      */
     public function isInstalled(?string $configPath = null): bool
     {
+        // If explicit path provided, just validate that path
+        if ($configPath !== null) {
+            return $this->isValidPath($configPath);
+        }
+
         return $this->isValidPath($this->resolve($configPath));
     }
 

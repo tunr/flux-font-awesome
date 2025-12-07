@@ -10,7 +10,7 @@ class InstallCommandTest extends TestCase
     /** @test */
     public function it_runs_install_command_successfully(): void
     {
-        $this->artisan('fa:install')
+        $this->artisan('flux-fa:install')
             ->assertSuccessful();
     }
 
@@ -24,7 +24,7 @@ class InstallCommandTest extends TestCase
             File::deleteDirectory($outputPath);
         }
 
-        $this->artisan('fa:install')->assertSuccessful();
+        $this->artisan('flux-fa:install')->assertSuccessful();
 
         $this->assertTrue(File::isDirectory($outputPath));
 
