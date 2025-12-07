@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tunr\FluxFontAwesome\Services;
 
 use Illuminate\Filesystem\Filesystem;
