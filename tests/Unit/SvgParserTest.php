@@ -2,6 +2,7 @@
 
 namespace Tunr\FluxFontAwesome\Tests\Unit;
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tunr\FluxFontAwesome\Services\SvgParser;
 
@@ -15,7 +16,7 @@ class SvgParserTest extends TestCase
         $this->parser = new SvgParser;
     }
 
-    /** @test */
+    #[Test]
     public function it_parses_simple_svg(): void
     {
         $svg = '<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M256 0L512 512H0L256 0z"/></svg>';
@@ -27,7 +28,7 @@ class SvgParserTest extends TestCase
         $this->assertEquals('M256 0L512 512H0L256 0z', $result['paths'][0]['d']);
     }
 
-    /** @test */
+    #[Test]
     public function it_uses_default_viewbox_when_missing(): void
     {
         $svg = '<svg><path d="M0 0"/></svg>';
@@ -37,7 +38,7 @@ class SvgParserTest extends TestCase
         $this->assertEquals('0 0 512 512', $result['viewBox']);
     }
 
-    /** @test */
+    #[Test]
     public function it_extracts_multiple_paths(): void
     {
         $svg = '<svg viewBox="0 0 512 512"><path d="M0 0"/><path d="M100 100"/></svg>';
@@ -49,7 +50,7 @@ class SvgParserTest extends TestCase
         $this->assertEquals('M100 100', $result['paths'][1]['d']);
     }
 
-    /** @test */
+    #[Test]
     public function it_preserves_path_attributes_for_duotone(): void
     {
         $svg = '<svg viewBox="0 0 512 512">
@@ -65,7 +66,7 @@ class SvgParserTest extends TestCase
         $this->assertEquals('fa-primary', $result['paths'][1]['class']);
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_duotone_icons(): void
     {
         $duotoneSvg = '<svg viewBox="0 0 512 512">
@@ -84,7 +85,7 @@ class SvgParserTest extends TestCase
         $this->assertFalse($this->parser->isDuotone($parsedRegular));
     }
 
-    /** @test */
+    #[Test]
     public function it_generates_path_markup(): void
     {
         $parsedData = [
@@ -101,7 +102,7 @@ class SvgParserTest extends TestCase
         $this->assertStringContainsString('/>', $markup);
     }
 
-    /** @test */
+    #[Test]
     public function it_generates_path_markup_with_attributes(): void
     {
         $parsedData = [
@@ -122,7 +123,7 @@ class SvgParserTest extends TestCase
         $this->assertStringContainsString('class="fa-secondary"', $markup);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_for_invalid_svg(): void
     {
         $this->expectException(\RuntimeException::class);

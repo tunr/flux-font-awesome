@@ -196,7 +196,7 @@ CASE;
         return collect($files)
             ->filter(fn ($file): bool => $file->getExtension() === 'php')
             ->map(fn ($file) => $file->getBasename('.blade.php'))
-            ->filter(fn ($name): bool => str_starts_with((string) $name, 'fa-'))
+            ->filter(fn ($name): bool => str_starts_with($name, 'fa-'))
             ->map(fn ($name): string => str_replace('fa-', '', $name))
             ->values()
             ->all();

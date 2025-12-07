@@ -169,7 +169,7 @@ class SvgParser
     protected function buildPathElement(array $attributes): string
     {
         $attributeString = collect($attributes)
-            ->map(fn ($value, string $key): string => sprintf('%s="%s"', $key, htmlspecialchars((string) $value, ENT_QUOTES)))
+            ->map(fn ($value, string $key): string => sprintf('%s="%s"', $key, htmlspecialchars($value, ENT_QUOTES)))
             ->implode(' ');
 
         return sprintf('<path %s />', $attributeString);

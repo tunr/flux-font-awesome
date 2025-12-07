@@ -2,6 +2,7 @@
 
 namespace Tunr\FluxFontAwesome\Tests\Unit;
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
 
@@ -15,7 +16,7 @@ class FontAwesomePathResolverTest extends TestCase
         $this->resolver = new FontAwesomePathResolver;
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_explicit_path_when_valid(): void
     {
         $path = __DIR__.'/../fixtures/fontawesome-test';
@@ -34,7 +35,7 @@ class FontAwesomePathResolverTest extends TestCase
         rmdir($path);
     }
 
-    /** @test */
+    #[Test]
     public function it_validates_paths_correctly(): void
     {
         $validPath = __DIR__.'/../fixtures/fontawesome-valid';
@@ -60,7 +61,7 @@ class FontAwesomePathResolverTest extends TestCase
         rmdir($invalidPath);
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_svgs_path(): void
     {
         $path = __DIR__.'/../fixtures/fontawesome-svgs';
@@ -76,17 +77,5 @@ class FontAwesomePathResolverTest extends TestCase
         // Cleanup
         rmdir($path.'/svgs');
         rmdir($path);
-    }
-
-    /** @test */
-    public function it_detects_free_installation_type(): void
-    {
-        $this->markTestSkipped('Requires reflection or making detectType public');
-    }
-
-    /** @test */
-    public function it_detects_pro_installation_type(): void
-    {
-        $this->markTestSkipped('Requires reflection or making detectType public');
     }
 }
