@@ -2,12 +2,13 @@
 
 namespace Tunr\FluxFontAwesome\Tests\Unit;
 
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Tunr\FluxFontAwesome\Support\Variant;
 
 class VariantTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_validates_valid_variants(): void
     {
         $this->assertTrue(Variant::isValid('solid'));
@@ -18,7 +19,7 @@ class VariantTest extends TestCase
         $this->assertTrue(Variant::isValid('duotone'));
     }
 
-    /** @test */
+    #[Test]
     public function it_rejects_invalid_variants(): void
     {
         $this->assertFalse(Variant::isValid('invalid'));
@@ -26,7 +27,7 @@ class VariantTest extends TestCase
         $this->assertFalse(Variant::isValid(''));
     }
 
-    /** @test */
+    #[Test]
     public function it_identifies_free_variants(): void
     {
         $this->assertTrue(Variant::isFree('solid'));
@@ -38,7 +39,7 @@ class VariantTest extends TestCase
         $this->assertFalse(Variant::isFree('duotone'));
     }
 
-    /** @test */
+    #[Test]
     public function it_identifies_pro_variants(): void
     {
         $this->assertTrue(Variant::isPro('light'));
@@ -51,7 +52,7 @@ class VariantTest extends TestCase
         $this->assertFalse(Variant::isPro('brands'));
     }
 
-    /** @test */
+    #[Test]
     public function it_converts_variants_to_directory_names(): void
     {
         $this->assertEquals('solid', Variant::toDirectory('solid'));
@@ -61,7 +62,7 @@ class VariantTest extends TestCase
         $this->assertEquals('sharp-solid', Variant::toDirectory('sharp-solid'));
     }
 
-    /** @test */
+    #[Test]
     public function it_normalizes_variant_aliases(): void
     {
         $this->assertEquals('solid', Variant::normalize('fas'));
@@ -78,7 +79,7 @@ class VariantTest extends TestCase
         $this->assertEquals('duotone', Variant::normalize('d'));
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_all_variants(): void
     {
         $all = Variant::all();
@@ -90,7 +91,7 @@ class VariantTest extends TestCase
         $this->assertContains('light', $all);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_free_variants_only(): void
     {
         $free = Variant::all('free');
@@ -102,7 +103,7 @@ class VariantTest extends TestCase
         $this->assertNotContains('light', $free);
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_pro_variants_only(): void
     {
         $pro = Variant::all('pro');

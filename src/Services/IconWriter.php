@@ -14,6 +14,8 @@ class IconWriter
 
     /**
      * Write a single icon with all its variants to a Blade component.
+     *
+     * @param array<string, string> $variantSvgPaths
      */
     public function write(string $iconName, array $variantSvgPaths, string $outputPath): bool
     {
@@ -27,6 +29,8 @@ class IconWriter
 
     /**
      * Generate the Blade component content for an icon with multiple variants.
+     *
+     * @param array<string, string> $variantSvgPaths
      */
     protected function generateIconContent(string $iconName, array $variantSvgPaths): string
     {
@@ -47,7 +51,7 @@ class IconWriter
             ];
         }
 
-        if (empty($variants)) {
+        if ($variants === []) {
             throw new \RuntimeException("No valid variants found for icon: {$iconName}");
         }
 
@@ -56,6 +60,8 @@ class IconWriter
 
     /**
      * Generate the complete Blade template for a multi-variant icon.
+     *
+     * @param array<string, array{viewBox: string, paths: string}> $variants
      */
     protected function generateBladeTemplate(string $iconName, array $variants): string
     {
@@ -79,6 +85,8 @@ class IconWriter
 
     /**
      * Generate @case blocks for each variant.
+     *
+     * @param array<string, array{viewBox: string, paths: string}> $variants
      */
     protected function generateVariantCases(array $variants): string
     {
@@ -97,6 +105,8 @@ CASE;
 
     /**
      * Get common viewBox from variants (FA icons typically share viewBox).
+     *
+     * @param array<string, array{viewBox: string, paths: string}> $variants
      */
     protected function getCommonViewBox(array $variants): string
     {
@@ -108,6 +118,8 @@ CASE;
 
     /**
      * Generate the default case (uses configured default style).
+     *
+     * @param array<string, array{viewBox: string, paths: string}> $variants
      */
     protected function generateDefaultCase(array $variants): string
     {
@@ -120,6 +132,10 @@ CASE;
 
         // Fallback to first available variant
         $firstVariant = reset($variants);
+
+        if ($firstVariant === false) {
+            return '';
+        }
 
         return "            {$firstVariant['paths']}";
     }
@@ -166,6 +182,8 @@ CASE;
 
     /**
      * Get all icon files in the output directory.
+     *
+     * @return array<string>
      */
     public function getIconFiles(string $outputPath): array
     {
@@ -176,10 +194,10 @@ CASE;
         $files = $this->files->files($outputPath);
 
         return collect($files)
-            ->filter(fn ($file) => $file->getExtension() === 'php')
+            ->filter(fn ($file): bool => $file->getExtension() === 'php')
             ->map(fn ($file) => $file->getBasename('.blade.php'))
-            ->filter(fn ($name) => str_starts_with($name, 'fa-'))
-            ->map(fn ($name) => str_replace('fa-', '', $name))
+            ->filter(fn ($name): bool => str_starts_with($name, 'fa-'))
+            ->map(fn ($name): string => str_replace('fa-', '', $name))
             ->values()
             ->all();
     }

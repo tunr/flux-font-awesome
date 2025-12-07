@@ -3,18 +3,19 @@
 namespace Tunr\FluxFontAwesome\Tests\Feature;
 
 use Illuminate\Support\Facades\File;
+use PHPUnit\Framework\Attributes\Test;
 use Tunr\FluxFontAwesome\Tests\TestCase;
 
 class InstallCommandTest extends TestCase
 {
-    /** @test */
+    #[Test]
     public function it_runs_install_command_successfully(): void
     {
         $this->artisan('flux-fa:install')
             ->assertSuccessful();
     }
 
-    /** @test */
+    #[Test]
     public function it_creates_icon_directory(): void
     {
         $outputPath = config('flux-font-awesome.output_path');
