@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tunr\FluxFontAwesome\Support;
 
-class Variant
+class Style
 {
     /**
-     * Font Awesome Free variants.
+     * Font Awesome Free styles.
      */
     public const FREE_SOLID = 'solid';
 
@@ -16,7 +16,7 @@ class Variant
     public const FREE_BRANDS = 'brands';
 
     /**
-     * Font Awesome Pro variants (additional).
+     * Font Awesome Pro styles (additional).
      */
     public const PRO_LIGHT = 'light';
 
@@ -33,7 +33,7 @@ class Variant
     public const PRO_SHARP_THIN = 'sharp-thin';
 
     /**
-     * All available Font Awesome variants.
+     * All available Font Awesome styles.
      */
     public const ALL = [
         self::FREE_SOLID,
@@ -49,7 +49,7 @@ class Variant
     ];
 
     /**
-     * Free-only variants.
+     * Free-only styles.
      */
     public const FREE = [
         self::FREE_SOLID,
@@ -58,7 +58,7 @@ class Variant
     ];
 
     /**
-     * Pro-only variants.
+     * Pro-only styles.
      */
     public const PRO = [
         self::PRO_LIGHT,
@@ -71,7 +71,7 @@ class Variant
     ];
 
     /**
-     * Map variant names to their directory names in Font Awesome packages.
+     * Map style names to their directory names in Font Awesome packages.
      */
     public const DIRECTORY_MAP = [
         self::FREE_SOLID => 'solid',
@@ -87,39 +87,39 @@ class Variant
     ];
 
     /**
-     * Check if a variant is valid.
+     * Check if a style is valid.
      */
-    public static function isValid(string $variant): bool
+    public static function isValid(string $style): bool
     {
-        return in_array($variant, self::ALL, true);
+        return in_array($style, self::ALL, true);
     }
 
     /**
-     * Check if a variant is a Free variant.
+     * Check if a style is a Free style.
      */
-    public static function isFree(string $variant): bool
+    public static function isFree(string $style): bool
     {
-        return in_array($variant, self::FREE, true);
+        return in_array($style, self::FREE, true);
     }
 
     /**
-     * Check if a variant is a Pro variant.
+     * Check if a style is a Pro style.
      */
-    public static function isPro(string $variant): bool
+    public static function isPro(string $style): bool
     {
-        return in_array($variant, self::PRO, true);
+        return in_array($style, self::PRO, true);
     }
 
     /**
-     * Get the directory name for a variant.
+     * Get the directory name for a style.
      */
-    public static function toDirectory(string $variant): string
+    public static function toDirectory(string $style): string
     {
-        return self::DIRECTORY_MAP[$variant] ?? $variant;
+        return self::DIRECTORY_MAP[$style] ?? $style;
     }
 
     /**
-     * Get all variants or filter by type.
+     * Get all styles or filter by type.
      *
      * @return array<string>
      */
@@ -133,11 +133,11 @@ class Variant
     }
 
     /**
-     * Normalize a variant name (handle aliases).
+     * Normalize a style name (handle aliases).
      */
-    public static function normalize(string $variant): string
+    public static function normalize(string $style): string
     {
-        return match (strtolower($variant)) {
+        return match (strtolower($style)) {
             'fas', 's' => self::FREE_SOLID,
             'far', 'r' => self::FREE_REGULAR,
             'fab', 'b' => self::FREE_BRANDS,
@@ -148,7 +148,7 @@ class Variant
             'fasr', 'sr' => self::PRO_SHARP_REGULAR,
             'fasl', 'sl' => self::PRO_SHARP_LIGHT,
             'fast', 'st' => self::PRO_SHARP_THIN,
-            default => strtolower($variant),
+            default => strtolower($style),
         };
     }
 }

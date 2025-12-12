@@ -41,11 +41,11 @@ class BuildCommandTest extends TestCase
     }
 
     #[Test]
-    public function it_builds_with_specific_variant(): void
+    public function it_builds_with_specific_style(): void
     {
         $this->artisan('flux-fa:build', [
             'icons' => ['user'],
-            '--variant' => ['solid'],
+            '--style' => ['solid'],
         ])->assertSuccessful();
 
         $outputPath = config('flux-font-awesome.output_path');

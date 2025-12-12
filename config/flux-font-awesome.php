@@ -35,15 +35,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Variant
+    | Default Style
     |--------------------------------------------------------------------------
     |
-    | The default Font Awesome variant to use when none is specified.
+    | The default Font Awesome style to use when none is specified.
     | Available: 'solid', 'regular', 'light', 'thin', 'duotone', 'brands'
     |
     */
 
-    'default_variant' => 'solid',
+    'default_style' => 'solid',
 
     /*
     |--------------------------------------------------------------------------
@@ -51,7 +51,7 @@ return [
     |--------------------------------------------------------------------------
     |
     | Tailwind CSS size classes for different icon sizes. These map to the
-    | 'size' prop on the icon component (e.g., <flux:icon.fa.user size="lg" />).
+    | 'size' prop on the icon component (e.g., <flux:icon.fa-user size="lg" />).
     |
     */
 
@@ -97,14 +97,18 @@ return [
     | Build Settings
     |--------------------------------------------------------------------------
     |
-    | Configuration for the flux-fa:build command.
+    | Configuration for the flux-fa:build and flux-fa:rebuild commands.
     |
     */
 
     'build' => [
-        // Variants to build (empty = all available variants)
+        // Default styles to build (empty = all available styles)
         // Available: solid, regular, light, thin, duotone, brands, sharp-solid, etc.
-        'variants' => [],
+        'styles' => [],
+
+        // Per-icon style overrides for icons that need different styles than the default
+        // Example: 'github' => ['brands'], 'spinner' => ['solid', 'duotone']
+        'overrides' => [],
     ],
 
 ];
