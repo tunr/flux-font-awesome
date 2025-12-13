@@ -34,6 +34,9 @@ class InstallCommand extends Command
         // Check Font Awesome installation
         $this->checkFontAwesome();
 
+        // Publish AI guidelines if Boost is installed
+        $this->publishGuidelines();
+
         $this->newLine();
         $this->components->info('Flux Font Awesome installed successfully!');
         $this->newLine();
@@ -96,6 +99,30 @@ class InstallCommand extends Command
             $this->line('');
             $this->line('For custom paths, set FA_SOURCE_PATH in .env');
         }
+    }
+
+    protected function publishGuidelines(): void
+    {
+        // Check if Boost is installed by looking for its service provider
+        if (! class_exists(\Boost\Boost\BoostServiceProvider::class)) {
+            return;
+        }
+
+        $guidelinesPath = base_path('.ai/guidelines/flux-font-awesome.md');
+        $force = $this->option('force');
+
+        if (File::exists($guidelinesPath) && ! $force) {
+            $this->components->task('AI guidelines already exist');
+
+            return;
+        }
+
+        $this->call('vendor:publish', [
+            '--tag' => 'flux-font-awesome-guidelines',
+            '--force' => $force,
+        ]);
+
+        $this->components->task('Published AI guidelines for Boost');
     }
 
     protected function displayNextSteps(): void

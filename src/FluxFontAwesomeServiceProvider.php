@@ -47,6 +47,11 @@ class FluxFontAwesomeServiceProvider extends ServiceProvider
             __DIR__.'/../resources/views' => resource_path('views'),
         ], 'flux-font-awesome-views');
 
+        // Publish AI guidelines
+        $this->publishes([
+            __DIR__.'/../resources/guidelines/flux-font-awesome.md' => base_path('.ai/guidelines/flux-font-awesome.md'),
+        ], 'flux-font-awesome-guidelines');
+
         // Load views from package
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'flux-font-awesome');
 
