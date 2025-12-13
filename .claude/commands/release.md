@@ -6,6 +6,19 @@ Create a new release for flux-font-awesome.
 
 ---
 
+## Important: Protected Branch Workflow
+
+This package uses **tags as the source of truth for versions** - no version file to maintain.
+
+**With protected `main` branch, the release flow is:**
+
+1. Merge your PR to main (via GitHub)
+2. Run `/release` to tag and publish
+
+The tag points to the current commit on main. Branch protection doesn't block tag pushes.
+
+---
+
 ## Instructions
 
 You are executing a release for the flux-font-awesome package. Follow these steps precisely:
@@ -23,29 +36,31 @@ Determine the release type:
 
 ### Step 2: Pre-flight Checks
 
-Run `composer check` which executes tests, static analysis, and code style in sequence.
+**2a. Ensure on main and up-to-date:**
+
+```bash
+git fetch origin main
+```
+
+Check current branch:
+```bash
+git branch --show-current
+```
+
+- If not on `main`: offer to run `git checkout main && git pull origin main`
+- If on `main` but behind remote: offer to run `git pull origin main`
+
+**2b. Clean working directory:**
+```bash
+git status --porcelain
+```
+- If output is not empty, STOP and tell user to commit or stash changes
+
+**2c. Run verification (skip if user requests with "quick" or "skip-checks"):**
+
+Run `composer check` which executes tests, static analysis, and code style.
 
 If any check fails, STOP and report the failure.
-
-Additionally verify:
-
-1. **Clean working directory**
-   ```bash
-   git status --porcelain
-   ```
-   - If output is not empty, STOP and tell user to commit or stash changes
-
-2. **On main branch** (warn but allow override)
-   ```bash
-   git branch --show-current
-   ```
-   - If not `main`, warn and ask if they want to continue
-
-3. **Synced with remote**
-   ```bash
-   git fetch origin main 2>/dev/null && git rev-list HEAD...origin/main --count 2>/dev/null || echo "0"
-   ```
-   - If count > 0, STOP and tell user to pull/push first
 
 ### Step 3: Determine Version
 
@@ -55,7 +70,7 @@ Additionally verify:
    ```
 
 2. If no argument was provided, show the user:
-   - Current version (or "none" if first release)
+   - Current version (or "none - this will be the first release")
    - What each bump type would produce
    - Ask them to choose: patch, minor, major, or explicit version
 
@@ -64,8 +79,8 @@ Additionally verify:
    Current version: v1.0.0
 
    Choose release type:
-   - patch → v1.0.1 (bug fixes)
-   - minor → v1.1.0 (new features)
+   - patch → v1.0.1 (bug fixes, no new features)
+   - minor → v1.1.0 (new features, backward compatible)
    - major → v2.0.0 (breaking changes)
 
    Or specify explicit version (e.g., v1.2.3)
@@ -75,7 +90,12 @@ Additionally verify:
    - If no tags exist: v1.0.0 for major, v0.1.0 for minor, v0.0.1 for patch
    - If tags exist: parse latest and increment appropriately
 
-4. Confirm the new version with the user before proceeding
+4. Show what will be tagged:
+   ```
+   Will create tag vX.Y.Z at commit: <short-hash> "<commit-message>"
+   ```
+
+5. Confirm with the user before proceeding
 
 ### Step 4: Create and Push Tag
 
@@ -103,8 +123,6 @@ Tell the user:
 
 ## Composer Scripts Reference
 
-The slash command uses these composer scripts:
-
 | Script | Purpose |
 |--------|---------|
 | `composer check` | Run all checks (test + larastan + pint:test) |
@@ -112,32 +130,26 @@ The slash command uses these composer scripts:
 | `composer larastan` | Run static analysis |
 | `composer pint:test` | Check code style |
 
-For manual release verification, run:
-```bash
-composer check && git status --porcelain
-```
-
 ---
 
 ## Error Handling
 
-- If `composer check` fails, show which step failed and stop
-- If git commands fail, show the error and stop
-- If push fails, suggest checking GitHub access
-- If tag already exists, ask if user wants a different version
+- If not on main: offer to checkout and pull
+- If working directory dirty: stop and list uncommitted files
+- If `composer check` fails: show which step failed and stop
+- If tag already exists: ask if user wants a different version
+- If push fails: suggest checking GitHub access or permissions
 
 ---
 
 ## Manual Release Process
 
-If you need to release without Claude:
-
 ```bash
-# 1. Verify everything passes
-composer check
+# 1. Ensure on latest main
+git checkout main && git pull origin main
 
-# 2. Check clean state
-git status
+# 2. Verify everything passes
+composer check
 
 # 3. Create and push tag
 git tag -a v1.0.0 -m "Release v1.0.0"
