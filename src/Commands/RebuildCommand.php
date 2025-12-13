@@ -106,7 +106,11 @@ class RebuildCommand extends Command
         $progressBar->start();
 
         foreach ($icons as $iconName) {
-            $styles = $this->getStylesForIcon($iconName);
+            // Brands icons only exist in the brands style
+            $styles = $this->isBrandsIcon($sourcePath, $iconName)
+                ? [Style::FREE_BRANDS]
+                : $this->getStylesForIcon($iconName);
+
             $styleSvgPaths = $this->findIconStyles($sourcePath, $iconName, $styles);
 
             if ($styleSvgPaths === []) {
@@ -132,6 +136,16 @@ class RebuildCommand extends Command
 
         $progressBar->finish();
         $this->newLine();
+    }
+
+    /**
+     * Check if an icon is a brands-only icon.
+     */
+    protected function isBrandsIcon(string $sourcePath, string $iconName): bool
+    {
+        $brandsPath = sprintf('%s/svgs/brands/%s.svg', $sourcePath, $iconName);
+
+        return File::exists($brandsPath);
     }
 
     /**

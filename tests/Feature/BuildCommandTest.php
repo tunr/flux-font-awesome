@@ -64,4 +64,43 @@ class BuildCommandTest extends TestCase
         $outputPath = config('flux-font-awesome.output_path');
         $this->assertFileDoesNotExist($outputPath.'/fa-nonexistent-icon-xyz.blade.php');
     }
+
+    #[Test]
+    public function it_builds_brands_icon_with_only_brands_style(): void
+    {
+        // Build github (a brands-only icon) even with solid style specified
+        $this->artisan('flux-fa:build', [
+            'icons' => ['github'],
+            '--style' => ['solid'],
+        ])->assertSuccessful();
+
+        $outputPath = config('flux-font-awesome.output_path');
+        $this->assertFileExists($outputPath.'/fa-github.blade.php');
+
+        // Should only contain brands style, not solid
+        $content = File::get($outputPath.'/fa-github.blade.php');
+        $this->assertStringContainsString("@case('brands')", $content);
+        $this->assertStringNotContainsString("@case('solid')", $content);
+    }
+
+    #[Test]
+    public function it_builds_mixed_icons_with_correct_styles(): void
+    {
+        // Build user (regular icon) and github (brands icon) with solid style
+        $this->artisan('flux-fa:build', [
+            'icons' => ['user', 'github'],
+            '--style' => ['solid'],
+        ])->assertSuccessful();
+
+        $outputPath = config('flux-font-awesome.output_path');
+
+        // User should have solid style
+        $userContent = File::get($outputPath.'/fa-user.blade.php');
+        $this->assertStringContainsString("@case('solid')", $userContent);
+
+        // GitHub should have brands style (auto-detected)
+        $githubContent = File::get($outputPath.'/fa-github.blade.php');
+        $this->assertStringContainsString("@case('brands')", $githubContent);
+        $this->assertStringNotContainsString("@case('solid')", $githubContent);
+    }
 }

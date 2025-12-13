@@ -116,7 +116,12 @@ class BuildCommand extends Command
         $progressBar->start();
 
         foreach ($icons as $iconName) {
-            $styleSvgPaths = $this->findIconStyles($sourcePath, $iconName, $styles);
+            // Brands icons only exist in the brands style
+            $iconStyles = $this->isBrandsIcon($sourcePath, $iconName)
+                ? [Style::FREE_BRANDS]
+                : $styles;
+
+            $styleSvgPaths = $this->findIconStyles($sourcePath, $iconName, $iconStyles);
 
             if ($styleSvgPaths === []) {
                 if ($this->output->isVerbose()) {
@@ -141,6 +146,16 @@ class BuildCommand extends Command
 
         $progressBar->finish();
         $this->newLine();
+    }
+
+    /**
+     * Check if an icon is a brands-only icon.
+     */
+    protected function isBrandsIcon(string $sourcePath, string $iconName): bool
+    {
+        $brandsPath = sprintf('%s/svgs/brands/%s.svg', $sourcePath, $iconName);
+
+        return File::exists($brandsPath);
     }
 
     /**

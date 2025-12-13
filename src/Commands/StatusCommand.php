@@ -179,6 +179,11 @@ class StatusCommand extends Command
      */
     protected function getExpectedStylesForIcon(string $iconName): array
     {
+        // Brands icons only exist in the brands style
+        if ($this->isBrandsIcon($iconName)) {
+            return [Style::FREE_BRANDS];
+        }
+
         // Check for per-icon overrides first
         /** @var array<string, array<string>> $overrides */
         $overrides = config('flux-font-awesome.build.overrides', []);
@@ -197,6 +202,23 @@ class StatusCommand extends Command
 
         // All styles
         return $this->filterAvailableStyles($iconName, Style::ALL);
+    }
+
+    /**
+     * Check if an icon is a brands-only icon.
+     */
+    protected function isBrandsIcon(string $iconName): bool
+    {
+        $configPath = config('flux-font-awesome.source_path');
+
+        if (! $this->pathResolver->isInstalled($configPath)) {
+            return false;
+        }
+
+        $sourcePath = $this->pathResolver->resolve($configPath);
+        $brandsPath = sprintf('%s/svgs/brands/%s.svg', $sourcePath, $iconName);
+
+        return File::exists($brandsPath);
     }
 
     /**
