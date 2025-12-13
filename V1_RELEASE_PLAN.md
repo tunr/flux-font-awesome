@@ -1,316 +1,147 @@
 # Flux Font Awesome v1 Release Plan
 
-This document outlines the systematic approach to preparing `tunr/flux-font-awesome` for a production-ready v1.0.0 release.
+Streamlined release process with zero-maintenance versioning.
 
-## Current State Assessment
+## Current State
 
-| Aspect | Status | Notes |
-|--------|--------|-------|
-| Code Quality | Ready | PHPStan Level 8, Pint, strict types |
-| Testing | Ready | Unit + Feature tests with PHPUnit 11 |
-| Documentation | Ready | Comprehensive README, CONTRIBUTING |
-| Dependencies | Ready | Modern, stable packages |
-| API Stability | Ready | Clear interfaces, config-driven |
-| **Version Management** | Missing | No version, tags, or CHANGELOG |
-| **Release Automation** | Missing | No automated release workflow |
+| Aspect | Status |
+|--------|--------|
+| Code Quality | Ready (PHPStan Level 8, Pint, strict types) |
+| Testing | Ready (Unit + Feature tests) |
+| Documentation | Ready (README, CONTRIBUTING) |
+| CI/CD | Ready (Tests, Code Style, Static Analysis) |
+| Release Automation | Ready (Tag-triggered releases) |
 
 ---
 
-## Phase 1: Version Infrastructure
+## Release Infrastructure
 
-### 1.1 Add Version to composer.json
+### Files Created
 
-Add version tracking (optional but useful for `composer show`):
+```
+.github/
+├── release.yml              # Auto-generates release notes from commits/PRs
+└── workflows/
+    ├── tests.yml            # Tests, code style, static analysis
+    └── release.yml          # Creates GitHub release on tag push
 
-```json
-{
-    "version": "1.0.0"
-}
+.claude/
+└── commands/
+    └── release.md           # /release slash command for Claude Code
 ```
 
-> **Note**: For Composer packages, the version is primarily determined by git tags, not composer.json. However, adding it provides clarity.
+### How It Works
 
-### 1.2 Create CHANGELOG.md
+1. **No CHANGELOG to maintain** - GitHub auto-generates release notes from commits and PRs
+2. **Tag-triggered releases** - Push a tag → GitHub Actions creates the release
+3. **Claude Code integration** - Use `/release` command to handle everything
 
-Create a CHANGELOG following [Keep a Changelog](https://keepachangelog.com/) format:
+---
 
-```markdown
-# Changelog
+## Using the /release Command
 
-All notable changes to this project will be documented in this file.
+The `/release` slash command handles the entire release process:
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
-## [Unreleased]
-
-## [1.0.0] - YYYY-MM-DD
-
-### Added
-- Initial stable release
-- `flux-fa:build` command for building Font Awesome icons as Flux components
-- `flux-fa:rebuild` command for rebuilding existing icons
-- `flux-fa:install` command for package setup
-- `flux-fa:list` command for listing built icons
-- `flux-fa:status` command for checking installation status
-- Support for Font Awesome Free and Pro icons
-- Support for all icon styles (solid, regular, light, thin, duotone, sharp variants)
-- Automatic brands icon detection
-- Single-file multi-style icon components
-- Configurable icon sizes with Tailwind CSS mappings
-- Per-icon style overrides via configuration
-- Auto-detection of Font Awesome installation (npm and Composer)
-- Published configuration file for customization
-
-[Unreleased]: https://github.com/tunr/flux-font-awesome/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/tunr/flux-font-awesome/releases/tag/v1.0.0
+```
+/release patch    # 1.0.0 → 1.0.1
+/release minor    # 1.0.0 → 1.1.0
+/release major    # 1.0.0 → 2.0.0
+/release v1.2.3   # Explicit version
 ```
 
+### What It Does
+
+1. **Pre-flight checks**
+   - Clean working directory
+   - On main branch (warns if not)
+   - Synced with remote
+   - Tests pass
+   - Static analysis passes
+   - Code style valid
+
+2. **Version calculation**
+   - Gets latest tag (or starts at v1.0.0)
+   - Calculates next version based on bump type
+   - Confirms with you before proceeding
+
+3. **Release execution**
+   - Creates annotated git tag
+   - Pushes tag to origin
+   - GitHub Actions takes over from here
+
+4. **GitHub Actions**
+   - Runs full test suite
+   - Creates GitHub Release with auto-generated notes
+   - Packagist picks up the new version automatically
+
 ---
 
-## Phase 2: CI/CD Improvements
+## First Release (v1.0.0)
 
-### 2.1 Add Static Analysis to CI
+To create the initial v1.0.0 release:
 
-Update `.github/workflows/tests.yml` to include PHPStan:
-
-```yaml
-  static-analysis:
-    runs-on: ubuntu-latest
-    name: Static Analysis
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.3
-          extensions: dom, curl, libxml, mbstring, zip
-          coverage: none
-
-      - name: Install dependencies
-        run: composer update --prefer-stable --prefer-dist --no-interaction
-
-      - name: Run PHPStan
-        run: vendor/bin/phpstan analyse --memory-limit=512M
+```
+/release v1.0.0
 ```
 
-### 2.2 Create Release Workflow
+Or simply:
 
-Create `.github/workflows/release.yml` for automated releases:
-
-```yaml
-name: Release
-
-on:
-  push:
-    tags:
-      - 'v*'
-
-permissions:
-  contents: write
-
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    name: Create Release
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Extract changelog for version
-        id: changelog
-        run: |
-          VERSION=${{ steps.version.outputs.VERSION }}
-          # Extract the section for this version from CHANGELOG.md
-          awk "/^## \[${VERSION}\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md > release_notes.md
-          echo "NOTES<<EOF" >> $GITHUB_OUTPUT
-          cat release_notes.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: v${{ steps.version.outputs.VERSION }}
-          body: ${{ steps.changelog.outputs.NOTES }}
-          draft: false
-          prerelease: ${{ contains(steps.version.outputs.VERSION, '-') }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```
+/release major
 ```
 
----
-
-## Phase 3: Pre-Release Checklist
-
-### 3.1 Code Quality Verification
-
-- [ ] Run full test suite: `composer test`
-- [ ] Run static analysis: `composer larastan`
-- [ ] Run code style check: `composer pint:test`
-- [ ] Run rector dry-run: `composer rector:dry`
-- [ ] Review and fix any issues
-
-### 3.2 Documentation Review
-
-- [ ] README.md is accurate and up-to-date
-- [ ] All commands are documented with examples
-- [ ] Installation instructions are complete
-- [ ] Configuration options are documented
-- [ ] CONTRIBUTING.md is current
-- [ ] LICENSE is correct (MIT)
-
-### 3.3 Dependency Audit
-
-- [ ] All dependencies are on stable versions
-- [ ] No known security vulnerabilities: `composer audit`
-- [ ] Dependencies are appropriate (no dev-only packages in require)
-
-### 3.4 Final Code Review
-
-- [ ] No TODO/FIXME comments left unaddressed
-- [ ] No debug code or dump statements
-- [ ] All public APIs have appropriate visibility
-- [ ] Error messages are user-friendly
+Claude will:
+1. Verify all checks pass
+2. Confirm the version with you
+3. Create and push the tag
+4. Provide links to monitor the release
 
 ---
 
-## Phase 4: Release Process
+## Release Notes Configuration
 
-### 4.1 Version Tagging Strategy
+Release notes are auto-generated based on PR labels:
 
-Follow [Semantic Versioning](https://semver.org/):
+| Label | Section |
+|-------|---------|
+| `breaking`, `breaking-change` | ⚠️ Breaking Changes |
+| `feature`, `enhancement` | 🚀 Features |
+| `bug`, `bugfix`, `fix` | 🐛 Bug Fixes |
+| `documentation`, `docs` | 📚 Documentation |
+| `chore`, `maintenance`, `refactor` | 🧹 Maintenance |
 
-- **MAJOR** (1.0.0 → 2.0.0): Breaking changes to public API
-- **MINOR** (1.0.0 → 1.1.0): New features, backward compatible
-- **PATCH** (1.0.0 → 1.0.1): Bug fixes, backward compatible
-
-### 4.2 Creating a Release
-
-1. **Update CHANGELOG.md**
-   - Move items from `[Unreleased]` to new version section
-   - Add release date
-   - Update comparison links at bottom
-
-2. **Commit the changelog**
-   ```bash
-   git add CHANGELOG.md
-   git commit -m "chore: prepare v1.0.0 release"
-   ```
-
-3. **Create and push tag**
-   ```bash
-   git tag -a v1.0.0 -m "Release v1.0.0"
-   git push origin main --tags
-   ```
-
-4. **Verify release**
-   - GitHub Actions creates the release automatically
-   - Packagist picks up the new version (if configured)
-
-### 4.3 Post-Release
-
-- [ ] Verify GitHub Release was created with correct notes
-- [ ] Verify Packagist shows the new version
-- [ ] Test installation from Packagist: `composer require tunr/flux-font-awesome`
-- [ ] Announce release (if applicable)
+PRs from dependabot and items labeled `skip-changelog` are excluded.
 
 ---
 
-## Phase 5: Packagist Publication
+## Pre-v1.0.0 Checklist
 
-### 5.1 Initial Packagist Setup (if not done)
+Before running `/release v1.0.0`:
 
-1. Go to [packagist.org](https://packagist.org)
-2. Sign in with GitHub
-3. Click "Submit" and enter: `https://github.com/tunr/flux-font-awesome`
-4. Enable auto-update via GitHub webhook:
-   - Go to GitHub repo → Settings → Webhooks
-   - Add webhook URL from Packagist
-   - Set content type to `application/json`
-   - Select "Just the push event"
-
-### 5.2 Verify Package Metadata
-
-Ensure composer.json has all required fields:
-- [x] `name` - tunr/flux-font-awesome
-- [x] `description` - Present
-- [x] `license` - MIT
-- [x] `authors` - Present
-- [x] `require` - PHP and dependencies specified
-- [x] `autoload` - PSR-4 configured
+- [ ] Merge this PR to main
+- [ ] Ensure all tests pass on main
+- [ ] Verify Packagist webhook is configured (or set it up after first release)
+- [ ] Review README for accuracy
 
 ---
 
-## Phase 6: Ongoing Maintenance
+## Packagist Setup
 
-### 6.1 Branch Protection (Recommended)
+After the first release, if not already configured:
 
-Configure branch protection for `main`:
-- Require pull request reviews
-- Require status checks to pass (tests, code-style, static-analysis)
-- Require branches to be up to date
-
-### 6.2 Release Cadence
-
-- **Patch releases**: As needed for bug fixes
-- **Minor releases**: When new features are ready
-- **Major releases**: Only for breaking changes (rare)
-
-### 6.3 Dependency Updates
-
-- Regularly update dependencies: `composer update`
-- Use Dependabot or similar for automated PRs
-- Review and test before merging
+1. Go to [packagist.org](https://packagist.org) and submit the package
+2. Add GitHub webhook for auto-updates:
+   - Repo Settings → Webhooks → Add webhook
+   - URL: `https://packagist.org/api/github?username=YOUR_PACKAGIST_USERNAME`
+   - Content type: `application/json`
+   - Events: Just push
 
 ---
 
-## Implementation Order
+## Version Strategy
 
-Execute phases in this order for minimal risk:
+Following [Semantic Versioning](https://semver.org/):
 
-| Step | Task | Estimated Time |
-|------|------|----------------|
-| 1 | Create CHANGELOG.md | 20 min |
-| 2 | Add static analysis to CI | 10 min |
-| 3 | Create release workflow | 15 min |
-| 4 | Run pre-release checklist | 30 min |
-| 5 | Create v1.0.0 tag and release | 10 min |
-| 6 | Configure Packagist (if needed) | 15 min |
-| **Total** | | **~1.5-2 hours** |
-
----
-
-## Files to Create/Modify
-
-### New Files
-- `CHANGELOG.md` - Version history
-- `.github/workflows/release.yml` - Automated releases
-
-### Modified Files
-- `.github/workflows/tests.yml` - Add static analysis job
-
-### Optional
-- `composer.json` - Add version field (not required, tags are authoritative)
-
----
-
-## Success Criteria
-
-The v1 release is complete when:
-
-1. CHANGELOG.md exists with v1.0.0 documented
-2. Git tag `v1.0.0` is pushed
-3. GitHub Release is automatically created with release notes
-4. Package is installable via `composer require tunr/flux-font-awesome:^1.0`
-5. All CI checks pass on the tagged commit
-6. Packagist shows v1.0.0 as the latest stable version
+- **MAJOR**: Breaking changes to commands, config structure, or output format
+- **MINOR**: New features, new commands, new config options
+- **PATCH**: Bug fixes, documentation, internal improvements
