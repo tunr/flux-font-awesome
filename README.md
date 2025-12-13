@@ -16,7 +16,7 @@ A Laravel package that integrates Font Awesome icons with the Flux UI component 
 
 - PHP 8.2+
 - Laravel 11.0+
-- [Flux UI](https://fluxui.dev)
+- Flux UI
 - Font Awesome (Free or Pro)
 
 ## Installation
