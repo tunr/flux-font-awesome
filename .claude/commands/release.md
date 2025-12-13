@@ -1,8 +1,8 @@
 # Release Command
 
-Create a new release for flux-font-awesome. Argument: version bump type or explicit version.
+Create a new release for flux-font-awesome.
 
-**Usage:** `/release <patch|minor|major|vX.Y.Z>`
+**Usage:** `/release [patch|minor|major|vX.Y.Z]`
 
 ---
 
@@ -19,12 +19,15 @@ Determine the release type:
 - `minor` → increment minor version (1.0.0 → 1.1.0)
 - `major` → increment major version (1.0.0 → 2.0.0)
 - `vX.Y.Z` → use explicit version (must start with 'v')
-
-If no argument or invalid argument, ask the user which type they want.
+- Empty/missing → proceed to Step 2, then ask user to choose
 
 ### Step 2: Pre-flight Checks
 
-Run these checks and **stop if any fail**:
+Run `composer check` which executes tests, static analysis, and code style in sequence.
+
+If any check fails, STOP and report the failure.
+
+Additionally verify:
 
 1. **Clean working directory**
    ```bash
@@ -36,31 +39,13 @@ Run these checks and **stop if any fail**:
    ```bash
    git branch --show-current
    ```
-   - If not `main`, warn the user and ask if they want to continue
+   - If not `main`, warn and ask if they want to continue
 
 3. **Synced with remote**
    ```bash
-   git fetch origin main && git rev-list HEAD...origin/main --count
+   git fetch origin main 2>/dev/null && git rev-list HEAD...origin/main --count 2>/dev/null || echo "0"
    ```
    - If count > 0, STOP and tell user to pull/push first
-
-4. **Tests pass**
-   ```bash
-   composer test
-   ```
-   - If tests fail, STOP and tell user to fix tests first
-
-5. **Static analysis passes**
-   ```bash
-   composer larastan
-   ```
-   - If analysis fails, STOP and tell user to fix issues first
-
-6. **Code style passes**
-   ```bash
-   composer pint:test
-   ```
-   - If style check fails, STOP and tell user to run `composer pint`
 
 ### Step 3: Determine Version
 
@@ -69,14 +54,28 @@ Run these checks and **stop if any fail**:
    git describe --tags --abbrev=0 2>/dev/null || echo "none"
    ```
 
-2. Calculate new version:
-   - If no tags exist and bump type specified: start at v1.0.0 (or v0.1.0 for minor, v0.0.1 for patch)
-   - If no tags exist and explicit version: use that version
-   - If tags exist: parse latest tag and increment appropriately
+2. If no argument was provided, show the user:
+   - Current version (or "none" if first release)
+   - What each bump type would produce
+   - Ask them to choose: patch, minor, major, or explicit version
 
-3. Confirm the new version with the user before proceeding:
-   - Show: "Current version: vX.Y.Z (or none) → New version: vA.B.C"
-   - Ask: "Proceed with release? (y/n)"
+   Example prompt:
+   ```
+   Current version: v1.0.0
+
+   Choose release type:
+   - patch → v1.0.1 (bug fixes)
+   - minor → v1.1.0 (new features)
+   - major → v2.0.0 (breaking changes)
+
+   Or specify explicit version (e.g., v1.2.3)
+   ```
+
+3. Calculate new version:
+   - If no tags exist: v1.0.0 for major, v0.1.0 for minor, v0.0.1 for patch
+   - If tags exist: parse latest and increment appropriately
+
+4. Confirm the new version with the user before proceeding
 
 ### Step 4: Create and Push Tag
 
@@ -92,55 +91,57 @@ Run these checks and **stop if any fail**:
 
 ### Step 5: Confirm Release
 
-1. Tell the user:
-   - Tag `vX.Y.Z` has been pushed
-   - GitHub Actions will now run tests and create the release
-   - Provide link: `https://github.com/tunr/flux-font-awesome/actions`
-   - Once complete, release will be at: `https://github.com/tunr/flux-font-awesome/releases/tag/vX.Y.Z`
+Tell the user:
+- Tag `vX.Y.Z` has been pushed
+- GitHub Actions will run verification and create the release
+- Links:
+  - Actions: `https://github.com/tunr/flux-font-awesome/actions`
+  - Release: `https://github.com/tunr/flux-font-awesome/releases/tag/vX.Y.Z`
+- Packagist will pick up the new version automatically (if webhook configured)
 
-2. Remind them that Packagist will automatically pick up the new version (if webhook is configured)
+---
+
+## Composer Scripts Reference
+
+The slash command uses these composer scripts:
+
+| Script | Purpose |
+|--------|---------|
+| `composer check` | Run all checks (test + larastan + pint:test) |
+| `composer test` | Run PHPUnit tests |
+| `composer larastan` | Run static analysis |
+| `composer pint:test` | Check code style |
+
+For manual release verification, run:
+```bash
+composer check && git status --porcelain
+```
 
 ---
 
 ## Error Handling
 
-- If any git command fails, show the error and stop
-- If push fails due to permissions, suggest checking GitHub access
-- If tag already exists, ask if they want to delete and recreate (dangerous) or choose different version
+- If `composer check` fails, show which step failed and stop
+- If git commands fail, show the error and stop
+- If push fails, suggest checking GitHub access
+- If tag already exists, ask if user wants a different version
 
 ---
 
-## Example Outputs
+## Manual Release Process
 
-**Success:**
-```
-✓ Working directory clean
-✓ On main branch
-✓ Synced with remote
-✓ Tests passing (42 assertions)
-✓ Static analysis clean
-✓ Code style valid
+If you need to release without Claude:
 
-Current version: v1.0.0 → New version: v1.0.1
+```bash
+# 1. Verify everything passes
+composer check
 
-Proceed with release? Confirmed.
+# 2. Check clean state
+git status
 
-✓ Created tag v1.0.1
-✓ Pushed to origin
-
-Release initiated! GitHub Actions is now:
-1. Running verification tests
-2. Creating the GitHub release with auto-generated notes
-
-Monitor: https://github.com/tunr/flux-font-awesome/actions
-Release: https://github.com/tunr/flux-font-awesome/releases/tag/v1.0.1
+# 3. Create and push tag
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin v1.0.0
 ```
 
-**Failure:**
-```
-✗ Working directory has uncommitted changes:
-  M src/Commands/BuildCommand.php
-  ?? new-file.php
-
-Please commit or stash your changes before releasing.
-```
+GitHub Actions handles the rest automatically.
