@@ -6,6 +6,7 @@ namespace Tunr\FluxFontAwesome;
 
 use Illuminate\Support\ServiceProvider;
 use Tunr\FluxFontAwesome\Commands\BuildCommand;
+use Tunr\FluxFontAwesome\Commands\GuidelinesCommand;
 use Tunr\FluxFontAwesome\Commands\InstallCommand;
 use Tunr\FluxFontAwesome\Commands\ListCommand;
 use Tunr\FluxFontAwesome\Commands\RebuildCommand;
@@ -63,6 +64,7 @@ class FluxFontAwesomeServiceProvider extends ServiceProvider
                 RebuildCommand::class,
                 ListCommand::class,
                 StatusCommand::class,
+                GuidelinesCommand::class,
             ]);
         }
     }
