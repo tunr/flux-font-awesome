@@ -112,6 +112,17 @@ php artisan flux-fa:rebuild
 php artisan flux-fa:rebuild user home
 ```
 
+### Brands Icons
+
+Brand icons (github, twitter, etc.) are automatically detected and built with only the `brands` style. This happens regardless of `--style` flags or config settings:
+
+```bash
+# GitHub will be built with brands style, user with solid
+php artisan flux-fa:build user github --style=solid
+```
+
+No need to add brand icons to `build.overrides` - they just work.
+
 ## Usage
 
 ### Basic Usage
@@ -192,9 +203,8 @@ Publish the config file during installation. Key options:
 'build' => [
     'styles' => [],
 
-    // Per-icon style overrides
+    // Per-icon style overrides (brands icons are auto-detected)
     'overrides' => [
-        'github' => ['brands'],
         'spinner' => ['solid', 'duotone'],
     ],
 ],
