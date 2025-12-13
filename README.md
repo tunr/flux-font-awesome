@@ -16,6 +16,7 @@ A Laravel package that integrates Font Awesome icons with the Flux UI component 
 
 - PHP 8.2+
 - Laravel 11.0+
+- Flux UI
 - Font Awesome (Free or Pro)
 
 ## Installation
@@ -33,7 +34,8 @@ php artisan flux-fa:install
 The package automatically detects Font Awesome in common locations:
 - `node_modules/@fortawesome/fontawesome-free`
 - `node_modules/@fortawesome/fontawesome-pro`
-- `vendor/fortawesome/font-awesome`
+- `vendor/fortawesome/font-awesome-free`
+- `vendor/fortawesome/font-awesome-pro`
 
 ### Font Awesome Free (npm)
 
@@ -52,9 +54,15 @@ npm config set "//npm.fontawesome.com/:_authToken" YOUR_TOKEN_HERE
 npm install @fortawesome/fontawesome-pro
 ```
 
+### Font Awesome Free (Composer)
+
+```bash
+composer require fortawesome/font-awesome-free
+```
+
 ### Font Awesome Pro (Composer)
 
-Add to `composer.json`:
+Add the Font Awesome repository to `composer.json`:
 
 ```json
 {
@@ -83,7 +91,7 @@ Add `auth.json` with your token:
 Then install:
 
 ```bash
-composer require fortawesome/font-awesome
+composer require fortawesome/font-awesome-pro
 ```
 
 ### Custom Path
@@ -234,7 +242,6 @@ php artisan flux-fa:rebuild
 
 ```bash
 composer test
-composer pint
 ```
 
 ## Contributing
