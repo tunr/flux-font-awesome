@@ -47,27 +47,27 @@ class IconWriterTest extends TestCase
     }
 
     #[Test]
-    public function it_writes_icon_with_single_variant(): void
+    public function it_writes_icon_with_single_style(): void
     {
-        $variantPaths = [
+        $stylePaths = [
             'solid' => __DIR__.'/../fixtures/fontawesome/svgs/solid/user.svg',
         ];
 
-        $result = $this->writer->write('user', $variantPaths, $this->outputPath);
+        $result = $this->writer->write('user', $stylePaths, $this->outputPath);
 
         $this->assertTrue($result);
         $this->assertFileExists($this->outputPath.'/fa-user.blade.php');
     }
 
     #[Test]
-    public function it_writes_icon_with_multiple_variants(): void
+    public function it_writes_icon_with_multiple_styles(): void
     {
-        $variantPaths = [
+        $stylePaths = [
             'solid' => __DIR__.'/../fixtures/fontawesome/svgs/solid/user.svg',
             'regular' => __DIR__.'/../fixtures/fontawesome/svgs/regular/user.svg',
         ];
 
-        $result = $this->writer->write('user', $variantPaths, $this->outputPath);
+        $result = $this->writer->write('user', $stylePaths, $this->outputPath);
 
         $this->assertTrue($result);
 
@@ -79,13 +79,13 @@ class IconWriterTest extends TestCase
     #[Test]
     public function it_checks_if_icon_exists(): void
     {
-        $variantPaths = [
+        $stylePaths = [
             'solid' => __DIR__.'/../fixtures/fontawesome/svgs/solid/user.svg',
         ];
 
         $this->assertFalse($this->writer->exists('user', $this->outputPath));
 
-        $this->writer->write('user', $variantPaths, $this->outputPath);
+        $this->writer->write('user', $stylePaths, $this->outputPath);
 
         $this->assertTrue($this->writer->exists('user', $this->outputPath));
     }
@@ -93,11 +93,11 @@ class IconWriterTest extends TestCase
     #[Test]
     public function it_deletes_icon(): void
     {
-        $variantPaths = [
+        $stylePaths = [
             'solid' => __DIR__.'/../fixtures/fontawesome/svgs/solid/user.svg',
         ];
 
-        $this->writer->write('user', $variantPaths, $this->outputPath);
+        $this->writer->write('user', $stylePaths, $this->outputPath);
         $this->assertTrue($this->writer->exists('user', $this->outputPath));
 
         $result = $this->writer->delete('user', $this->outputPath);
@@ -141,13 +141,38 @@ class IconWriterTest extends TestCase
     }
 
     #[Test]
-    public function it_throws_exception_for_invalid_variant_paths(): void
+    public function it_throws_exception_for_invalid_style_paths(): void
     {
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessage('No valid variants found');
+        $this->expectExceptionMessage('No valid styles found');
 
         $this->writer->write('test', [
             'solid' => '/nonexistent/path.svg',
         ], $this->outputPath);
+    }
+
+    #[Test]
+    public function it_gets_icon_styles(): void
+    {
+        $stylePaths = [
+            'solid' => __DIR__.'/../fixtures/fontawesome/svgs/solid/user.svg',
+            'regular' => __DIR__.'/../fixtures/fontawesome/svgs/regular/user.svg',
+        ];
+
+        $this->writer->write('user', $stylePaths, $this->outputPath);
+
+        $styles = $this->writer->getIconStyles('user', $this->outputPath);
+
+        $this->assertCount(2, $styles);
+        $this->assertContains('solid', $styles);
+        $this->assertContains('regular', $styles);
+    }
+
+    #[Test]
+    public function it_returns_empty_array_for_nonexistent_icon_styles(): void
+    {
+        $styles = $this->writer->getIconStyles('nonexistent', $this->outputPath);
+
+        $this->assertEquals([], $styles);
     }
 }

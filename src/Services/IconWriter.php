@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tunr\FluxFontAwesome\Services;
 
 use Illuminate\Filesystem\Filesystem;
-use Tunr\FluxFontAwesome\Support\Variant;
 
 class IconWriter
 {
@@ -15,13 +14,13 @@ class IconWriter
     ) {}
 
     /**
-     * Write a single icon with all its variants to a Blade component.
+     * Write a single icon with all its styles to a Blade component.
      *
-     * @param array<string, string> $variantSvgPaths
+     * @param array<string, string> $styleSvgPaths
      */
-    public function write(string $iconName, array $variantSvgPaths, string $outputPath): bool
+    public function write(string $iconName, array $styleSvgPaths, string $outputPath): bool
     {
-        $iconContent = $this->generateIconContent($iconName, $variantSvgPaths);
+        $iconContent = $this->generateIconContent($iconName, $styleSvgPaths);
         $filePath = $this->getIconFilePath($iconName, $outputPath);
 
         $this->ensureDirectoryExists(dirname($filePath));
@@ -30,15 +29,15 @@ class IconWriter
     }
 
     /**
-     * Generate the Blade component content for an icon with multiple variants.
+     * Generate the Blade component content for an icon with multiple styles.
      *
-     * @param array<string, string> $variantSvgPaths
+     * @param array<string, string> $styleSvgPaths
      */
-    protected function generateIconContent(string $iconName, array $variantSvgPaths): string
+    protected function generateIconContent(string $iconName, array $styleSvgPaths): string
     {
-        $variants = [];
+        $styles = [];
 
-        foreach ($variantSvgPaths as $variant => $svgPath) {
+        foreach ($styleSvgPaths as $style => $svgPath) {
             if (! $this->files->exists($svgPath)) {
                 continue;
             }
@@ -47,25 +46,25 @@ class IconWriter
             $parsed = $this->parser->parse($svgContent);
             $pathMarkup = $this->parser->generatePathMarkup($parsed);
 
-            $variants[$variant] = [
+            $styles[$style] = [
                 'viewBox' => $parsed['viewBox'],
                 'paths' => $pathMarkup,
             ];
         }
 
-        if ($variants === []) {
-            throw new \RuntimeException("No valid variants found for icon: {$iconName}");
+        if ($styles === []) {
+            throw new \RuntimeException("No valid styles found for icon: {$iconName}");
         }
 
-        return $this->generateBladeTemplate($iconName, $variants);
+        return $this->generateBladeTemplate($iconName, $styles);
     }
 
     /**
-     * Generate the complete Blade template for a multi-variant icon.
+     * Generate the complete Blade template for a multi-style icon.
      *
-     * @param array<string, array{viewBox: string, paths: string}> $variants
+     * @param array<string, array{viewBox: string, paths: string}> $styles
      */
-    protected function generateBladeTemplate(string $iconName, array $variants): string
+    protected function generateBladeTemplate(string $iconName, array $styles): string
     {
         $stubPath = __DIR__.'/../../stubs/icon.blade.stub';
 
@@ -74,29 +73,29 @@ class IconWriter
         }
 
         $template = $this->files->get($stubPath);
-        $variantCases = $this->generateVariantCases($variants);
-        $viewBox = $this->getCommonViewBox($variants);
-        $defaultCase = $this->generateDefaultCase($variants);
+        $styleCases = $this->generateStyleCases($styles);
+        $viewBox = $this->getCommonViewBox($styles);
+        $defaultCase = $this->generateDefaultCase($styles);
 
         return str_replace(
             ['{{VIEW_BOX}}', '{{VARIANT_CASES}}', '{{DEFAULT_CASE}}'],
-            [$viewBox, $variantCases, $defaultCase],
+            [$viewBox, $styleCases, $defaultCase],
             $template
         );
     }
 
     /**
-     * Generate @case blocks for each variant.
+     * Generate @case blocks for each style.
      *
-     * @param array<string, array{viewBox: string, paths: string}> $variants
+     * @param array<string, array{viewBox: string, paths: string}> $styles
      */
-    protected function generateVariantCases(array $variants): string
+    protected function generateStyleCases(array $styles): string
     {
         $cases = [];
 
-        foreach ($variants as $variant => $data) {
+        foreach ($styles as $style => $data) {
             $cases[] = <<<CASE
-        @case('{$variant}')
+        @case('{$style}')
             {$data['paths']}
             @break
 CASE;
@@ -106,40 +105,40 @@ CASE;
     }
 
     /**
-     * Get common viewBox from variants (FA icons typically share viewBox).
+     * Get common viewBox from styles (FA icons typically share viewBox).
      *
-     * @param array<string, array{viewBox: string, paths: string}> $variants
+     * @param array<string, array{viewBox: string, paths: string}> $styles
      */
-    protected function getCommonViewBox(array $variants): string
+    protected function getCommonViewBox(array $styles): string
     {
-        // FA icons typically share viewBox across variants - just use first
-        $firstVariant = reset($variants);
+        // FA icons typically share viewBox across styles - just use first
+        $firstStyle = reset($styles);
 
-        return $firstVariant['viewBox'] ?? '0 0 512 512';
+        return $firstStyle['viewBox'] ?? '0 0 512 512';
     }
 
     /**
      * Generate the default case (uses configured default style).
      *
-     * @param array<string, array{viewBox: string, paths: string}> $variants
+     * @param array<string, array{viewBox: string, paths: string}> $styles
      */
-    protected function generateDefaultCase(array $variants): string
+    protected function generateDefaultCase(array $styles): string
     {
         // Try to use the configured default style
-        $defaultStyle = config('flux-font-awesome.default_variant', 'solid');
+        $defaultStyle = config('flux-font-awesome.default_style', 'solid');
 
-        if (isset($variants[$defaultStyle])) {
-            return "            {$variants[$defaultStyle]['paths']}";
+        if (isset($styles[$defaultStyle])) {
+            return "            {$styles[$defaultStyle]['paths']}";
         }
 
-        // Fallback to first available variant
-        $firstVariant = reset($variants);
+        // Fallback to first available style
+        $firstStyle = reset($styles);
 
-        if ($firstVariant === false) {
+        if ($firstStyle === false) {
             return '';
         }
 
-        return "            {$firstVariant['paths']}";
+        return "            {$firstStyle['paths']}";
     }
 
     /**
@@ -202,5 +201,26 @@ CASE;
             ->map(fn ($name): string => str_replace('fa-', '', $name))
             ->values()
             ->all();
+    }
+
+    /**
+     * Get the styles present in an existing icon file.
+     *
+     * @return array<string>
+     */
+    public function getIconStyles(string $iconName, string $outputPath): array
+    {
+        $filePath = $this->getIconFilePath($iconName, $outputPath);
+
+        if (! $this->files->exists($filePath)) {
+            return [];
+        }
+
+        $content = $this->files->get($filePath);
+
+        // Parse @case('style') statements from the blade file
+        preg_match_all("/@case\('([^']+)'\)/", $content, $matches);
+
+        return $matches[1] ?? [];
     }
 }

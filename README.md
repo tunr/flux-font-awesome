@@ -7,7 +7,7 @@ A Laravel package that integrates Font Awesome icons with the Flux UI component 
 
 ## Features
 
-- Single-file, multi-variant icon components
+- Single-file, multi-style icon components
 - Full support for Font Awesome Free and Pro
 - Seamless Flux UI integration
 - Artisan commands for building and managing icons
@@ -102,9 +102,26 @@ Build the icons you need:
 # Build specific icons
 php artisan flux-fa:build user home github
 
-# Build with specific variants
-php artisan flux-fa:build user --variant=solid --variant=regular
+# Build with specific styles
+php artisan flux-fa:build user --style=solid --style=regular
+
+# Rebuild all existing icons (applies current config)
+php artisan flux-fa:rebuild
+
+# Rebuild specific icons
+php artisan flux-fa:rebuild user home
 ```
+
+### Brands Icons
+
+Brand icons (github, twitter, etc.) are automatically detected and built with only the `brands` style. This happens regardless of `--style` flags or config settings:
+
+```bash
+# GitHub will be built with brands style, user with solid
+php artisan flux-fa:build user github --style=solid
+```
+
+No need to add brand icons to `build.overrides` - they just work.
 
 ## Usage
 
@@ -122,15 +139,15 @@ php artisan flux-fa:build user --variant=solid --variant=regular
 <flux:button icon="fa-user">Profile</flux:button>
 ```
 
-### Variants
+### Styles
 
 ```blade
-{{-- Free variants --}}
+{{-- Free styles --}}
 <flux:icon.fa-user style="solid" />
 <flux:icon.fa-user style="regular" />
 <flux:icon.fa-github style="brands" />
 
-{{-- Pro variants --}}
+{{-- Pro styles --}}
 <flux:icon.fa-user style="light" />
 <flux:icon.fa-user style="thin" />
 <flux:icon.fa-user style="duotone" />
@@ -166,8 +183,9 @@ Icons inherit `currentColor`:
 |---------|-------------|
 | `flux-fa:install` | Set up the package |
 | `flux-fa:build <icons...>` | Build icon components |
+| `flux-fa:rebuild [icons...]` | Rebuild existing icons from config |
 | `flux-fa:list` | List built icons |
-| `flux-fa:status` | Check installation status |
+| `flux-fa:status` | Check installation status and config drift |
 
 ## Configuration
 
@@ -178,12 +196,17 @@ Publish the config file during installation. Key options:
 
 'source_path' => env('FA_SOURCE_PATH'),  // Auto-detected if null
 'output_path' => resource_path('views/flux/icon'),
-'default_variant' => 'solid',
+'default_style' => 'solid',
 'default_size' => 'md',
 
-// Limit which variants are built (empty = all available)
+// Limit which styles are built (empty = all available)
 'build' => [
-    'variants' => [],
+    'styles' => [],
+
+    // Per-icon style overrides (brands icons are auto-detected)
+    'overrides' => [
+        'spinner' => ['solid', 'duotone'],
+    ],
 ],
 ```
 
@@ -195,11 +218,16 @@ Publish the config file during installation. Key options:
 php artisan flux-fa:status
 ```
 
-**Rebuild icons after upgrading Font Awesome:**
+**Check for config drift:**
 
 ```bash
-php artisan flux-fa:list              # See what you have
-php artisan flux-fa:build user home   # Rebuild those icons
+php artisan flux-fa:status --drift
+```
+
+**Rebuild icons after changing config:**
+
+```bash
+php artisan flux-fa:rebuild
 ```
 
 ## Testing

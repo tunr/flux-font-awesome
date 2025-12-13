@@ -8,16 +8,20 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
 use Tunr\FluxFontAwesome\Services\IconWriter;
-use Tunr\FluxFontAwesome\Support\Variant;
+use Tunr\FluxFontAwesome\Support\Style;
 
 class StatusCommand extends Command
 {
-    protected $signature = 'flux-fa:status';
+    protected $signature = 'flux-fa:status
+                            {--drift : Show detailed drift information for each icon}';
 
     protected $description = 'Check Flux Font Awesome installation status';
 
     /** @var array<string> */
     protected array $issues = [];
+
+    /** @var array<string, array{expected: array<string>, actual: array<string>}> */
+    protected array $driftIcons = [];
 
     public function __construct(
         protected IconWriter $writer,
@@ -33,6 +37,7 @@ class StatusCommand extends Command
         $this->checkFontAwesome();
         $this->checkOutputDirectory();
         $this->checkBuiltIcons();
+        $this->checkConfigDrift();
 
         $this->newLine();
 
@@ -74,10 +79,10 @@ class StatusCommand extends Command
 
         $this->line("<fg=green>✓</> Font Awesome: {$editionLabel}{$versionLabel}");
 
-        // Show available variants
-        $variants = $this->getAvailableVariants($sourcePath);
-        if ($variants !== []) {
-            $this->line('  <fg=gray>Variants:</> '.implode(', ', $variants));
+        // Show available styles
+        $styles = $this->getAvailableStyles($sourcePath);
+        if ($styles !== []) {
+            $this->line('  <fg=gray>Styles:</> '.implode(', ', $styles));
         }
     }
 
@@ -116,14 +121,145 @@ class StatusCommand extends Command
         $this->line("<fg=green>✓</> Icons: <fg=cyan>{$count}</> built");
     }
 
+    protected function checkConfigDrift(): void
+    {
+        $outputPath = config('flux-font-awesome.output_path');
+        $icons = $this->writer->getIconFiles($outputPath);
+
+        if ($icons === []) {
+            return;
+        }
+
+        $this->driftIcons = [];
+
+        foreach ($icons as $iconName) {
+            $expectedStyles = $this->getExpectedStylesForIcon($iconName);
+            $actualStyles = $this->writer->getIconStyles($iconName, $outputPath);
+
+            sort($expectedStyles);
+            sort($actualStyles);
+
+            if ($expectedStyles !== $actualStyles) {
+                $this->driftIcons[$iconName] = [
+                    'expected' => $expectedStyles,
+                    'actual' => $actualStyles,
+                ];
+            }
+        }
+
+        if ($this->driftIcons === []) {
+            $this->line('<fg=green>✓</> Config: <fg=gray>All icons match config</>');
+
+            return;
+        }
+
+        $driftCount = count($this->driftIcons);
+        $this->line("<fg=yellow>○</> Config: <fg=yellow>{$driftCount} icon(s) differ from config</>");
+
+        if ($this->option('drift')) {
+            $this->newLine();
+            foreach ($this->driftIcons as $iconName => $drift) {
+                $expected = implode(', ', $drift['expected']) ?: '(none available)';
+                $actual = implode(', ', $drift['actual']);
+                $this->line("  <fg=yellow>⚠</> {$iconName}");
+                $this->line("      <fg=gray>Config:</> {$expected}");
+                $this->line("      <fg=gray>Built:</>  {$actual}");
+            }
+        } else {
+            $this->line('  <fg=gray>Run with --drift to see details</>');
+        }
+
+        $this->line('  <fg=gray>Run</> <fg=cyan>php artisan flux-fa:rebuild</> <fg=gray>to sync</>');
+    }
+
+    /**
+     * Get the expected styles for an icon based on config.
+     *
+     * @return array<string>
+     */
+    protected function getExpectedStylesForIcon(string $iconName): array
+    {
+        // Brands icons only exist in the brands style
+        if ($this->isBrandsIcon($iconName)) {
+            return [Style::FREE_BRANDS];
+        }
+
+        // Check for per-icon overrides first
+        /** @var array<string, array<string>> $overrides */
+        $overrides = config('flux-font-awesome.build.overrides', []);
+
+        if (isset($overrides[$iconName])) {
+            return $this->filterAvailableStyles($iconName, $overrides[$iconName]);
+        }
+
+        // Fall back to default styles
+        /** @var array<string> $configStyles */
+        $configStyles = config('flux-font-awesome.build.styles', []);
+
+        if ($configStyles !== []) {
+            return $this->filterAvailableStyles($iconName, $configStyles);
+        }
+
+        // All styles
+        return $this->filterAvailableStyles($iconName, Style::ALL);
+    }
+
+    /**
+     * Check if an icon is a brands-only icon.
+     */
+    protected function isBrandsIcon(string $iconName): bool
+    {
+        $configPath = config('flux-font-awesome.source_path');
+
+        if (! $this->pathResolver->isInstalled($configPath)) {
+            return false;
+        }
+
+        $sourcePath = $this->pathResolver->resolve($configPath);
+        $brandsPath = sprintf('%s/svgs/brands/%s.svg', $sourcePath, $iconName);
+
+        return File::exists($brandsPath);
+    }
+
+    /**
+     * Filter styles to only those that exist for this icon in Font Awesome source.
+     *
+     * @param array<string> $styles
+     *
+     * @return array<string>
+     */
+    protected function filterAvailableStyles(string $iconName, array $styles): array
+    {
+        $configPath = config('flux-font-awesome.source_path');
+
+        if (! $this->pathResolver->isInstalled($configPath)) {
+            return [];
+        }
+
+        $sourcePath = $this->pathResolver->resolve($configPath);
+        $svgsPath = $sourcePath.'/svgs';
+        $available = [];
+
+        foreach ($styles as $style) {
+            $styleDir = Style::toDirectory($style);
+            $svgPath = sprintf('%s/%s/%s.svg', $svgsPath, $styleDir, $iconName);
+
+            if (File::exists($svgPath)) {
+                $available[] = $style;
+            }
+        }
+
+        return $available;
+    }
+
     protected function detectEdition(string $sourcePath): string
     {
-        // Check for Pro-only variant directories
+        // Check for Pro-only style directories
         $svgsPath = $sourcePath.'/svgs';
 
-        foreach (Variant::PRO as $variant) {
-            $variantDir = $svgsPath.'/'.Variant::toDirectory($variant);
-            if (File::isDirectory($variantDir)) {
+        foreach (Style::PRO as $style) {
+            $styleDir = $svgsPath.'/'.Style::toDirectory($style);
+            if (File::isDirectory($styleDir)) {
                 return 'pro';
             }
         }
@@ -147,15 +283,15 @@ class StatusCommand extends Command
     /**
      * @return array<string>
      */
-    protected function getAvailableVariants(string $sourcePath): array
+    protected function getAvailableStyles(string $sourcePath): array
     {
         $svgsPath = $sourcePath.'/svgs';
         $available = [];
 
-        foreach (Variant::ALL as $variant) {
-            $variantDir = $svgsPath.'/'.Variant::toDirectory($variant);
-            if (File::isDirectory($variantDir)) {
-                $available[] = $variant;
+        foreach (Style::ALL as $style) {
+            $styleDir = $svgsPath.'/'.Style::toDirectory($style);
+            if (File::isDirectory($styleDir)) {
+                $available[] = $style;
             }
         }
 

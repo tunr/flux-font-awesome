@@ -8,19 +8,19 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
 use Tunr\FluxFontAwesome\Services\IconWriter;
-use Tunr\FluxFontAwesome\Support\Variant;
+use Tunr\FluxFontAwesome\Support\Style;
 
 class BuildCommand extends Command
 {
     protected $signature = 'flux-fa:build
                             {icons* : Icons to build (e.g., user github)}
-                            {--variant=* : Specific variants to build (e.g., solid regular)}';
+                            {--style=* : Specific styles to build (e.g., solid regular)}';
 
     protected $description = 'Build Flux Font Awesome icon components';
 
     protected int $iconCount = 0;
 
-    protected int $variantCount = 0;
+    protected int $styleCount = 0;
 
     /** @var array<string, string> */
     protected array $failedIcons = [];
@@ -43,12 +43,12 @@ class BuildCommand extends Command
 
         /** @var array<string> $iconsToBuild */
         $iconsToBuild = $this->argument('icons');
-        $variantsToBuild = $this->getVariantsToBuild();
+        $stylesToBuild = $this->getStylesToBuild();
 
-        $this->buildIcons($iconsToBuild, $variantsToBuild);
+        $this->buildIcons($iconsToBuild, $stylesToBuild);
 
         $this->newLine();
-        $this->components->info("Built {$this->iconCount} icons with {$this->variantCount} total variants");
+        $this->components->info("Built {$this->iconCount} icons with {$this->styleCount} total styles");
 
         if ($this->failedIcons !== []) {
             $this->newLine();
@@ -85,29 +85,29 @@ class BuildCommand extends Command
     /**
      * @return array<string>
      */
-    protected function getVariantsToBuild(): array
+    protected function getStylesToBuild(): array
     {
-        /** @var array<string> $requestedVariants */
-        $requestedVariants = $this->option('variant');
+        /** @var array<string> $requestedStyles */
+        $requestedStyles = $this->option('style');
 
-        if ($requestedVariants !== []) {
-            return array_map(Variant::normalize(...), $requestedVariants);
+        if ($requestedStyles !== []) {
+            return array_map(Style::normalize(...), $requestedStyles);
         }
 
-        /** @var array<string> $configVariants */
-        $configVariants = config('flux-font-awesome.build.variants', []);
-        if ($configVariants !== []) {
-            return $configVariants;
+        /** @var array<string> $configStyles */
+        $configStyles = config('flux-font-awesome.build.styles', []);
+        if ($configStyles !== []) {
+            return $configStyles;
         }
 
-        return Variant::ALL;
+        return Style::ALL;
     }
 
     /**
      * @param array<string> $icons
-     * @param array<string> $variants
+     * @param array<string> $styles
      */
-    protected function buildIcons(array $icons, array $variants): void
+    protected function buildIcons(array $icons, array $styles): void
     {
         $sourcePath = $this->pathResolver->resolve(config('flux-font-awesome.source_path'));
         $outputPath = config('flux-font-awesome.output_path');
@@ -116,9 +116,14 @@ class BuildCommand extends Command
         $progressBar->start();
 
         foreach ($icons as $iconName) {
-            $variantSvgPaths = $this->findIconVariants($sourcePath, $iconName, $variants);
+            // Brands icons only exist in the brands style
+            $iconStyles = $this->isBrandsIcon($sourcePath, $iconName)
+                ? [Style::FREE_BRANDS]
+                : $styles;
 
-            if ($variantSvgPaths === []) {
+            $styleSvgPaths = $this->findIconStyles($sourcePath, $iconName, $iconStyles);
+
+            if ($styleSvgPaths === []) {
                 if ($this->output->isVerbose()) {
                     $this->newLine();
                     $this->components->warn("Icon '{$iconName}' not found in Font Awesome source");
@@ -129,9 +134,9 @@ class BuildCommand extends Command
             }
 
             try {
-                $this->writer->write($iconName, $variantSvgPaths, $outputPath);
+                $this->writer->write($iconName, $styleSvgPaths, $outputPath);
                 $this->iconCount++;
-                $this->variantCount += count($variantSvgPaths);
+                $this->styleCount += count($styleSvgPaths);
             } catch (\RuntimeException $e) {
                 $this->failedIcons[$iconName] = $e->getMessage();
             }
@@ -144,21 +149,31 @@ class BuildCommand extends Command
     }
 
     /**
-     * @param array<string> $variants
+     * Check if an icon is a brands-only icon.
+     */
+    protected function isBrandsIcon(string $sourcePath, string $iconName): bool
+    {
+        $brandsPath = sprintf('%s/svgs/brands/%s.svg', $sourcePath, $iconName);
+
+        return File::exists($brandsPath);
+    }
+
+    /**
+     * @param array<string> $styles
      *
      * @return array<string, string>
      */
-    protected function findIconVariants(string $sourcePath, string $iconName, array $variants): array
+    protected function findIconStyles(string $sourcePath, string $iconName, array $styles): array
     {
         $svgsPath = $sourcePath.'/svgs';
         $found = [];
 
-        foreach ($variants as $variant) {
-            $variantDir = Variant::toDirectory($variant);
-            $svgPath = sprintf('%s/%s/%s.svg', $svgsPath, $variantDir, $iconName);
+        foreach ($styles as $style) {
+            $styleDir = Style::toDirectory($style);
+            $svgPath = sprintf('%s/%s/%s.svg', $svgsPath, $styleDir, $iconName);
 
             if (File::exists($svgPath)) {
-                $found[$variant] = $svgPath;
+                $found[$style] = $svgPath;
             }
         }
 
