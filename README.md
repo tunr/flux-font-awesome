@@ -194,6 +194,17 @@ Icons inherit `currentColor`:
 | `flux-fa:rebuild [icons...]` | Rebuild existing icons from config |
 | `flux-fa:list` | List built icons |
 | `flux-fa:status` | Check installation status and config drift |
+| `flux-fa:guidelines` | Publish AI guidelines for Laravel Boost |
+
+## AI Guidelines
+
+This package includes AI guidelines for [Laravel Boost](https://github.com/jasonvarga/boost). When Boost is installed, guidelines are automatically published during `flux-fa:install` to `.ai/guidelines/flux-font-awesome.md`.
+
+To manually publish:
+
+```bash
+php artisan flux-fa:guidelines
+```
 
 ## Configuration
 
