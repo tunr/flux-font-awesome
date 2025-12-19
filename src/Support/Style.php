@@ -134,10 +134,12 @@ class Style
 
     /**
      * Normalize a style name (handle aliases).
+     *
+     * @throws \InvalidArgumentException If the style is not valid
      */
     public static function normalize(string $style): string
     {
-        return match (strtolower($style)) {
+        $normalized = match (strtolower($style)) {
             'fas', 's' => self::FREE_SOLID,
             'far', 'r' => self::FREE_REGULAR,
             'fab', 'b' => self::FREE_BRANDS,
@@ -150,5 +152,13 @@ class Style
             'fast', 'st' => self::PRO_SHARP_THIN,
             default => strtolower($style),
         };
+
+        if (! self::isValid($normalized)) {
+            throw new \InvalidArgumentException(
+                "Invalid style '{$style}'. Valid styles: ".implode(', ', self::ALL)
+            );
+        }
+
+        return $normalized;
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
 use Tunr\FluxFontAwesome\Services\IconWriter;
+use Tunr\FluxFontAwesome\Support\IconName;
 use Tunr\FluxFontAwesome\Support\Style;
 
 class RebuildCommand extends Command
@@ -106,6 +107,16 @@ class RebuildCommand extends Command
         $progressBar->start();
 
         foreach ($icons as $iconName) {
+            // Validate icon name early
+            try {
+                $iconName = IconName::validate($iconName);
+            } catch (\InvalidArgumentException $e) {
+                $this->failedIcons[$iconName] = $e->getMessage();
+                $progressBar->advance();
+
+                continue;
+            }
+
             // Brands icons only exist in the brands style
             $styles = $this->isBrandsIcon($sourcePath, $iconName)
                 ? [Style::FREE_BRANDS]

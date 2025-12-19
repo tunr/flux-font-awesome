@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tunr\FluxFontAwesome\Services;
 
 use Illuminate\Filesystem\Filesystem;
+use Tunr\FluxFontAwesome\Support\IconName;
 
 class IconWriter
 {
@@ -143,10 +144,15 @@ CASE;
 
     /**
      * Get the file path for an icon component.
+     *
+     * @throws \InvalidArgumentException If icon name is invalid
      */
     protected function getIconFilePath(string $iconName, string $outputPath): string
     {
-        return sprintf('%s/fa-%s.blade.php', rtrim($outputPath, '/'), $iconName);
+        // Validate icon name to prevent path traversal
+        $validatedName = IconName::validate($iconName);
+
+        return sprintf('%s/fa-%s.blade.php', rtrim($outputPath, '/'), $validatedName);
     }
 
     /**
@@ -221,6 +227,6 @@ CASE;
         // Parse @case('style') statements from the blade file
         preg_match_all("/@case\('([^']+)'\)/", $content, $matches);
 
-        return $matches[1] ?? [];
+        return $matches[1];
     }
 }

@@ -9,6 +9,12 @@ use Symfony\Component\DomCrawler\Crawler;
 class SvgParser
 {
     /**
+     * Allowed attributes for path elements.
+     * Only these attributes will be extracted from SVG paths for security.
+     */
+    private const ALLOWED_PATH_ATTRIBUTES = ['d', 'fill', 'opacity', 'fill-opacity', 'class'];
+
+    /**
      * Parse an SVG file and extract its contents.
      *
      * @return array{viewBox: string, paths: array<array{d: string|null, fill?: string, opacity?: string, fill-opacity?: string, class?: string}>, attributes: array<string, string>}
@@ -83,6 +89,10 @@ class SvgParser
     /**
      * Extract all path elements from an SVG.
      *
+     * SECURITY: This method intentionally ONLY extracts <path> elements
+     * and a specific allowlist of attributes to prevent XSS attacks.
+     * All other SVG elements (script, animate, etc.) are ignored.
+     *
      * @return array<array{d: string|null, fill?: string, opacity?: string, fill-opacity?: string, class?: string}>
      */
     protected function extractPaths(Crawler $svg): array
@@ -90,31 +100,36 @@ class SvgParser
         $paths = [];
 
         $svg->filter('path')->each(function (Crawler $path) use (&$paths): void {
-            $pathData = [
-                'd' => $path->attr('d'),
-            ];
+            $pathData = [];
 
-            // Preserve attributes like fill, opacity, class for duotone support
-            if ($fill = $path->attr('fill')) {
-                $pathData['fill'] = $fill;
+            // Only extract explicitly allowed attributes
+            foreach (self::ALLOWED_PATH_ATTRIBUTES as $attr) {
+                $value = $path->attr($attr);
+                if ($value !== null && $value !== '') {
+                    // Additional validation for class names
+                    if ($attr === 'class' && ! $this->isValidClassName($value)) {
+                        continue;
+                    }
+                    $pathData[$attr] = $value;
+                }
             }
 
-            if ($opacity = $path->attr('opacity')) {
-                $pathData['opacity'] = $opacity;
+            // Only add path if it has a 'd' attribute
+            if (isset($pathData['d'])) {
+                $paths[] = $pathData;
             }
-
-            if ($fillOpacity = $path->attr('fill-opacity')) {
-                $pathData['fill-opacity'] = $fillOpacity;
-            }
-
-            if ($class = $path->attr('class')) {
-                $pathData['class'] = $class;
-            }
-
-            $paths[] = $pathData;
         });
 
         return $paths;
+    }
+
+    /**
+     * Validate that a class name contains only safe characters.
+     */
+    protected function isValidClassName(string $class): bool
+    {
+        // Only allow alphanumeric, hyphens, underscores, and spaces
+        return preg_match('/^[a-zA-Z0-9_\- ]+$/', $class) === 1;
     }
 
     /**

@@ -115,4 +115,22 @@ class StyleTest extends TestCase
         $this->assertNotContains('solid', $pro);
         $this->assertNotContains('regular', $pro);
     }
+
+    #[Test]
+    public function it_throws_exception_for_invalid_style_in_normalize(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid style 'invalid'");
+
+        Style::normalize('invalid');
+    }
+
+    #[Test]
+    public function it_throws_exception_for_path_traversal_in_style(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage("Invalid style '../etc/passwd'");
+
+        Style::normalize('../etc/passwd');
+    }
 }
