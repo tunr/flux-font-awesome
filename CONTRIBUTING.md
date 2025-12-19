@@ -40,14 +40,10 @@ composer test:coverage
 
 ### Code Style
 
-This project uses Laravel Pint for code formatting. Check your code style:
+This project uses [Laravel Pint](https://laravel.com/docs/pint) for code formatting:
+
 ```bash
 composer pint
-```
-
-Fix code style issues automatically:
-```bash
-vendor/bin/pint
 ```
 
 ### Before Committing
@@ -66,16 +62,14 @@ vendor/bin/pint
    - `test: add missing tests`
    - `refactor: improve code structure`
 
-2. **Update the CHANGELOG.md** with your changes
+2. **Ensure CI passes** - all tests and code style checks must pass
 
-3. **Ensure CI passes** - all tests and code style checks must pass
-
-4. **Write a clear PR description** explaining:
+3. **Write a clear PR description** explaining:
    - What changes you made
    - Why you made them
    - How to test them
 
-5. **Request review** and be responsive to feedback
+4. **Request review** and be responsive to feedback
 
 ## Testing Guidelines
 
