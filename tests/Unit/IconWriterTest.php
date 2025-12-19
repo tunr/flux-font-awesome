@@ -25,11 +25,22 @@ class IconWriterTest extends TestCase
         if (! is_dir($this->outputPath)) {
             mkdir($this->outputPath, 0755, true);
         }
+
+        // Clean up any stale files from interrupted test runs
+        $this->cleanOutputDirectory();
     }
 
     protected function tearDown(): void
     {
-        // Clean up any created files but preserve .gitkeep
+        $this->cleanOutputDirectory();
+        parent::tearDown();
+    }
+
+    /**
+     * Clean up test output directory, preserving .gitkeep.
+     */
+    private function cleanOutputDirectory(): void
+    {
         $files = glob($this->outputPath.'/*.php');
         if ($files) {
             foreach ($files as $file) {
@@ -42,8 +53,6 @@ class IconWriterTest extends TestCase
         if (! file_exists($gitkeep)) {
             touch($gitkeep);
         }
-
-        parent::tearDown();
     }
 
     #[Test]
