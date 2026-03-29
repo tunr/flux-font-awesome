@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tunr\FluxFontAwesome\Commands;
 
+use Boost\Boost\BoostServiceProvider;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Tunr\FluxFontAwesome\Services\FontAwesomePathResolver;
@@ -104,7 +105,7 @@ class InstallCommand extends Command
     protected function publishGuidelines(): void
     {
         // Check if Boost is installed by looking for its service provider
-        if (! class_exists(\Boost\Boost\BoostServiceProvider::class)) {
+        if (! class_exists(BoostServiceProvider::class)) {
             return;
         }
 
