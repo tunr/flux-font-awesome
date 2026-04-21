@@ -41,7 +41,6 @@ class SvgParser
     protected function extractViewBox(Crawler $svg): string
     {
         // Try to get viewBox attribute directly from the DOMElement
-        // Note: DOM normalizes attribute names to lowercase
         $node = $svg->getNode(0);
 
         // Type guard: ensure we have a DOMElement
@@ -49,10 +48,17 @@ class SvgParser
             return '0 0 512 512';
         }
 
-        $viewBox = $node->getAttribute('viewbox');
+        // viewBox is camelCase in SVG (XML), but Symfony DomCrawler parses as
+        // HTML by default, which lowercases attribute names via libxml unless
+        // masterminds/html5 is installed. Try both casings so we don't depend
+        // on that optional package being present.
+        $viewBox = $node->getAttribute('viewBox');
 
         if ($viewBox === '') {
-            // Fallback to common Font Awesome viewBox
+            $viewBox = $node->getAttribute('viewbox');
+        }
+
+        if ($viewBox === '') {
             return '0 0 512 512';
         }
 

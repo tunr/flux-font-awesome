@@ -29,6 +29,16 @@ class SvgParserTest extends TestCase
     }
 
     #[Test]
+    public function it_extracts_non_square_viewbox(): void
+    {
+        $svg = '<svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg"><path d="M0 0"/></svg>';
+
+        $result = $this->parser->parse($svg);
+
+        $this->assertEquals('0 0 448 512', $result['viewBox']);
+    }
+
+    #[Test]
     public function it_uses_default_viewbox_when_missing(): void
     {
         $svg = '<svg><path d="M0 0"/></svg>';
