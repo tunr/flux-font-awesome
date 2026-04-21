@@ -75,12 +75,12 @@ class IconWriter
 
         $template = $this->files->get($stubPath);
         $styleCases = $this->generateStyleCases($styles);
-        $viewBox = $this->getCommonViewBox($styles);
+        $viewBoxResolver = $this->generateViewBoxResolver($styles);
         $defaultCase = $this->generateDefaultCase($styles);
 
         return str_replace(
-            ['{{VIEW_BOX}}', '{{VARIANT_CASES}}', '{{DEFAULT_CASE}}'],
-            [$viewBox, $styleCases, $defaultCase],
+            ['{{VIEW_BOX_RESOLVER}}', '{{VARIANT_CASES}}', '{{DEFAULT_CASE}}'],
+            [$viewBoxResolver, $styleCases, $defaultCase],
             $template
         );
     }
@@ -106,16 +106,36 @@ CASE;
     }
 
     /**
-     * Get common viewBox from styles (FA icons typically share viewBox).
+     * Generate the PHP expression that resolves the correct viewBox for the active style.
+     *
+     * When all styles share the same viewBox, generates a simple string assignment.
+     * When styles differ, generates a match expression to resolve per-style.
      *
      * @param array<string, array{viewBox: string, paths: string}> $styles
      */
-    protected function getCommonViewBox(array $styles): string
+    protected function generateViewBoxResolver(array $styles): string
     {
-        // FA icons typically share viewBox across styles - just use first
-        $firstStyle = reset($styles);
+        $viewBoxes = array_map(fn (array $data): string => $data['viewBox'], $styles);
+        $unique = array_unique($viewBoxes);
 
-        return $firstStyle['viewBox'] ?? '0 0 512 512';
+        if (count($unique) === 1) {
+            return sprintf("\$viewBox = '%s';", reset($unique));
+        }
+
+        // Find most common viewBox for the default arm
+        $counts = array_count_values($viewBoxes);
+        arsort($counts);
+        $defaultViewBox = array_key_first($counts);
+
+        $arms = [];
+        foreach ($styles as $style => $data) {
+            if ($data['viewBox'] !== $defaultViewBox) {
+                $arms[] = sprintf("        '%s' => '%s',", $style, $data['viewBox']);
+            }
+        }
+        $arms[] = sprintf("        default => '%s',", $defaultViewBox);
+
+        return "\$viewBox = match(\$style) {\n".implode("\n", $arms)."\n    };";
     }
 
     /**

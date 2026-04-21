@@ -41,7 +41,6 @@ class SvgParser
     protected function extractViewBox(Crawler $svg): string
     {
         // Try to get viewBox attribute directly from the DOMElement
-        // Note: DOM normalizes attribute names to lowercase
         $node = $svg->getNode(0);
 
         // Type guard: ensure we have a DOMElement
@@ -49,7 +48,8 @@ class SvgParser
             return '0 0 512 512';
         }
 
-        $viewBox = $node->getAttribute('viewbox');
+        // viewBox is case-sensitive in SVG (XML) — use exact camelCase
+        $viewBox = $node->getAttribute('viewBox');
 
         if ($viewBox === '') {
             // Fallback to common Font Awesome viewBox

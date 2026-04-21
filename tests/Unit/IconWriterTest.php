@@ -184,4 +184,38 @@ class IconWriterTest extends TestCase
 
         $this->assertEquals([], $styles);
     }
+
+    #[Test]
+    public function it_uses_static_viewbox_when_all_styles_share_same_value(): void
+    {
+        $stylePaths = [
+            'solid' => __DIR__.'/../fixtures/fontawesome/svgs/solid/user.svg',
+            'regular' => __DIR__.'/../fixtures/fontawesome/svgs/regular/user.svg',
+        ];
+
+        $this->writer->write('user', $stylePaths, $this->outputPath);
+
+        $content = file_get_contents($this->outputPath.'/fa-user.blade.php');
+        $this->assertStringContainsString("\$viewBox = '0 0 448 512';", $content);
+        $this->assertStringContainsString('viewBox="{{ $viewBox }}"', $content);
+        $this->assertStringNotContainsString('match($style)', $content);
+    }
+
+    #[Test]
+    public function it_uses_match_expression_when_styles_have_different_viewboxes(): void
+    {
+        $stylePaths = [
+            'solid' => __DIR__.'/../fixtures/fontawesome/svgs/solid/expand.svg',
+            'regular' => __DIR__.'/../fixtures/fontawesome/svgs/regular/expand.svg',
+            'light' => __DIR__.'/../fixtures/fontawesome/svgs/light/expand.svg',
+        ];
+
+        $this->writer->write('expand', $stylePaths, $this->outputPath);
+
+        $content = file_get_contents($this->outputPath.'/fa-expand.blade.php');
+        $this->assertStringContainsString('match($style)', $content);
+        $this->assertStringContainsString("'solid' => '0 0 384 512'", $content);
+        $this->assertStringContainsString("default => '0 0 448 512'", $content);
+        $this->assertStringContainsString('viewBox="{{ $viewBox }}"', $content);
+    }
 }

@@ -11,9 +11,10 @@ $style = IconHelper::resolveStyle($style);
 $sizeClass = IconHelper::resolveSizeClass($variant, $size);
 $classes = Flux::classes('shrink-0')->add($sizeClass);
 $scaleStyle = IconHelper::getScaleStyle();
+{{VIEW_BOX_RESOLVER}}
 @endphp
 
-<svg {{ $attributes->class($classes) }} viewBox="{{VIEW_BOX}}"{!! $scaleStyle !!} data-flux-icon aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+<svg {{ $attributes->class($classes) }} viewBox="{{ $viewBox }}"{!! $scaleStyle !!} data-flux-icon aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg" overflow="visible">
     @switch($style)
 {{VARIANT_CASES}}
         @default
