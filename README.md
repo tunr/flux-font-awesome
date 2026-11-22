@@ -15,9 +15,16 @@ A Laravel package that integrates Font Awesome icons with the Flux UI component 
 ## Requirements
 
 - PHP 8.2+
-- Laravel 11.0+
-- Flux UI
+- Laravel 12 or 13
+- Flux UI 2.1+
 - Font Awesome (Free or Pro)
+
+| Laravel | PHP | Flux UI | Testbench |
+| --- | --- | --- | --- |
+| 12 | 8.2–8.5 | 2.1+ | 10.x |
+| 13 | 8.3–8.5 | 2.1+ | 11.x |
+
+The package supports Symfony DOM Crawler and CSS Selector 7.x or 8.x; Symfony 8 requires PHP 8.4 or newer.
 
 ## Installation
 
@@ -34,8 +41,7 @@ php artisan flux-fa:install
 The package automatically detects Font Awesome in common locations:
 - `node_modules/@fortawesome/fontawesome-free`
 - `node_modules/@fortawesome/fontawesome-pro`
-- `vendor/fortawesome/font-awesome-free`
-- `vendor/fortawesome/font-awesome-pro`
+- `vendor/fortawesome/font-awesome`
 
 ### Font Awesome Free (npm)
 
@@ -57,42 +63,10 @@ npm install @fortawesome/fontawesome-pro
 ### Font Awesome Free (Composer)
 
 ```bash
-composer require fortawesome/font-awesome-free
+composer require fortawesome/font-awesome
 ```
 
-### Font Awesome Pro (Composer)
-
-Add the Font Awesome repository to `composer.json`:
-
-```json
-{
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://composer.fontawesome.com"
-        }
-    ]
-}
-```
-
-Add `auth.json` with your token:
-
-```json
-{
-    "http-basic": {
-        "composer.fontawesome.com": {
-            "username": "YOUR_TOKEN_HERE",
-            "password": "retrieve"
-        }
-    }
-}
-```
-
-Then install:
-
-```bash
-composer require fortawesome/font-awesome-pro
-```
+Font Awesome Pro is distributed through Font Awesome's authenticated JavaScript package registries. Install the full Pro package with npm as shown above, or set `FA_SOURCE_PATH` to another licensed installation that contains an `svgs` directory.
 
 ### Custom Path
 
@@ -252,7 +226,7 @@ php artisan flux-fa:rebuild
 ## Testing
 
 ```bash
-composer test
+composer check
 ```
 
 ## Contributing
@@ -261,7 +235,9 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## License
 
-MIT License. See [LICENSE.md](LICENSE.md).
+The package source is available under the MIT License. See [LICENSE.md](LICENSE.md).
+
+Font Awesome icons are not included in the distributed package. Icons generated from Font Awesome remain subject to the applicable Font Awesome Free or Pro license. The small Font Awesome Free fixtures used by this repository's test suite retain their original license; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Credits
 

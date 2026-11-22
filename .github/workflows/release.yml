@@ -1,63 +1,66 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version tag to create (for example, v1.0.0)
+        required: true
+        type: string
 
 permissions:
   contents: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
-  # Run full test suite before releasing
   verify:
-    runs-on: ubuntu-latest
-    name: Verify
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: 8.3
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, bcmath
-          coverage: none
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction
-
-      - name: Run tests
-        run: vendor/bin/phpunit
-
-      - name: Run static analysis
-        run: vendor/bin/phpstan analyse --memory-limit=512M
-
-      - name: Check code style
-        run: vendor/bin/pint --test
+    uses: ./.github/workflows/tests.yml
 
   release:
     needs: verify
     runs-on: ubuntu-latest
-    name: Create Release
+    name: Tag and publish release
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Checkout verified commit
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: ${{ steps.version.outputs.VERSION }}
-          generate_release_notes: true
-          draft: false
-          prerelease: ${{ contains(steps.version.outputs.VERSION, '-alpha') || contains(steps.version.outputs.VERSION, '-beta') || contains(steps.version.outputs.VERSION, '-rc') }}
+      - name: Validate version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_REF: ${{ github.ref }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ "$RELEASE_REF" != "refs/heads/main" ]]; then
+            echo "Releases must be dispatched from main, not $RELEASE_REF"
+            exit 1
+          fi
+
+          semver_pattern='^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?$'
+
+          if [[ ! "$VERSION" =~ $semver_pattern ]]; then
+            echo "Invalid release version: $VERSION"
+            exit 1
+          fi
+
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "Tag already exists: $VERSION"
+            exit 1
+          fi
+
+      - name: Create tag and GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          args=("$VERSION" --target "$GITHUB_SHA" --generate-notes --title "$VERSION")
+
+          if [[ "$VERSION" == *-* ]]; then
+            args+=(--prerelease)
+          fi
+
+          gh release create "${args[@]}"

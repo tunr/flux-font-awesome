@@ -2,6 +2,8 @@
 
 namespace Tunr\FluxFontAwesome\Tests;
 
+use Flux\FluxServiceProvider;
+use Livewire\LivewireServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Tunr\FluxFontAwesome\FluxFontAwesomeServiceProvider;
 
@@ -15,6 +17,8 @@ abstract class TestCase extends Orchestra
     protected function getPackageProviders($app): array
     {
         return [
+            LivewireServiceProvider::class,
+            FluxServiceProvider::class,
             FluxFontAwesomeServiceProvider::class,
         ];
     }
