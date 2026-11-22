@@ -205,9 +205,9 @@ class IconWriterTest extends TestCase
     public function it_uses_match_expression_when_styles_have_different_viewboxes(): void
     {
         $stylePaths = [
-            'solid' => __DIR__.'/../fixtures/fontawesome/svgs/solid/expand.svg',
-            'regular' => __DIR__.'/../fixtures/fontawesome/svgs/regular/expand.svg',
-            'light' => __DIR__.'/../fixtures/fontawesome/svgs/light/expand.svg',
+            'solid' => __DIR__.'/../fixtures/synthetic/solid.svg',
+            'regular' => __DIR__.'/../fixtures/synthetic/regular.svg',
+            'light' => __DIR__.'/../fixtures/synthetic/light.svg',
         ];
 
         $this->writer->write('expand', $stylePaths, $this->outputPath);

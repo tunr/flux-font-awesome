@@ -1,6 +1,6 @@
 {
     "name": "tunr/flux-font-awesome",
-    "description": "Font Awesome icon integration for Laravel Flux UI component library",
+    "description": "Font Awesome icon integration for the Laravel Flux UI component library",
     "keywords": [
         "laravel",
         "livewire",
@@ -9,28 +9,33 @@
         "icons",
         "components"
     ],
+    "homepage": "https://github.com/tunr/flux-font-awesome",
     "type": "library",
     "license": "MIT",
     "authors": [
         {
-            "name": "tunr",
-            "email": "capellion@gmail.com"
+            "name": "tunr"
         }
     ],
+    "support": {
+        "issues": "https://github.com/tunr/flux-font-awesome/issues",
+        "source": "https://github.com/tunr/flux-font-awesome"
+    },
     "require": {
         "php": "^8.2",
-        "illuminate/support": "^11.0|^12.0|^13.0",
-        "illuminate/console": "^11.0|^12.0|^13.0",
-        "illuminate/filesystem": "^11.0|^12.0|^13.0",
-        "symfony/dom-crawler": "^7.0|^8.0",
-        "symfony/css-selector": "^7.0|^8.0"
+        "ext-dom": "*",
+        "illuminate/console": "^12.0|^13.0",
+        "illuminate/filesystem": "^12.0|^13.0",
+        "illuminate/support": "^12.0|^13.0",
+        "livewire/flux": "^2.1",
+        "symfony/css-selector": "^7.0|^8.0",
+        "symfony/dom-crawler": "^7.0|^8.0"
     },
     "require-dev": {
-        "driftingly/rector-laravel": "^2.1",
         "larastan/larastan": "^3.8",
         "laravel/pint": "^1.13",
-        "orchestra/testbench": "^9.5|^10.0",
-        "phpunit/phpunit": "^11.4"
+        "orchestra/testbench": "^10.0|^11.0",
+        "phpunit/phpunit": "^11.5|^12.5|^13.0"
     },
     "autoload": {
         "psr-4": {
@@ -55,8 +60,6 @@
         "pint": "vendor/bin/pint",
         "pint:test": "vendor/bin/pint --test",
         "larastan": "vendor/bin/phpstan analyse --memory-limit=512M",
-        "rector": "vendor/bin/rector",
-        "rector:dry": "vendor/bin/rector --dry-run",
         "check": [
             "@test",
             "@larastan",

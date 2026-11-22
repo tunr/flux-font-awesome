@@ -48,10 +48,15 @@ composer pint
 
 ### Before Committing
 
-1. Ensure all tests pass
-2. Check code style
-3. Update documentation if needed
-4. Add tests for new features
+Run the same local quality gate used for release preparation:
+
+```bash
+composer check
+composer validate --strict
+composer audit
+```
+
+Then update documentation and add tests for any user-facing behavior changes.
 
 ## Pull Request Process
 
@@ -105,7 +110,6 @@ Feature requests are welcome! Please:
 
 ## Questions?
 
-- Open a [Discussion](https://github.com/tunr/flux-font-awesome/discussions)
-- Check existing [Issues](https://github.com/tunr/flux-font-awesome/issues)
+- Open or search [Issues](https://github.com/tunr/flux-font-awesome/issues)
 
 Thank you for contributing!

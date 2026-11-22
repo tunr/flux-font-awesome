@@ -14,7 +14,6 @@ class FontAwesomePathResolver
     protected array $commonPaths = [
         'node_modules/@fortawesome/fontawesome-free',
         'node_modules/@fortawesome/fontawesome-pro',
-        'node_modules/@fortawesome/pro-solid-svg-icons',
         'vendor/fortawesome/font-awesome',
     ];
 
